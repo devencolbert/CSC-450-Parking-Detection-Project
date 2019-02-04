@@ -13,6 +13,7 @@ class Spot(Base):
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
+	status = Column(String(250))
     floor_number = Column(String(250))
     number = Column(String(250))
     location = Column(String(250))
