@@ -79,3 +79,13 @@ for image, linez in zip(images, parking_lines):
     line_images.append(draw(image,linez))
     
 all_images(line_images)
+'''
+def contour(image):
+    contour_lines = np.copy(image)
+
+    epsilon = 0.1*cv2.arcLength(cnt,True)
+    approx = cv2.approxPolyDP(cnt,epsilon,True)
+    cv2.drawContours(contour_lines, approx, -1 (0,255,0),3)
+
+rect = list(map(contour, line_images))
+'''
