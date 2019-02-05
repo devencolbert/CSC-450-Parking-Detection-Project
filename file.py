@@ -1,32 +1,18 @@
 import numpy as np
 import cv2
-import math
 
-cap = cv2.VideoCapture(0)
+img = cv2.imread('test.jpg')
+imgray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img = cv2.GaussianBlur(imgray, (5,5), 0)
+img = cv2.Canny(img, 50, 150)
+ret,thresh = cv2.threshold(img,127,255,0)
+contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-# Define the codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+cnt = contours[0]
+x,y,w,h = cv2.boundingRect(cnt)
+img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
-frameRate = cap.get(5) #frame rate
-x=1
+img = cv2.drawContours(img, contours, -1, (150,255,0), 3)
 
-while(cap.isOpened()):
-    frameId = cap.get(1) 
-    ret, frame = cap.read()
-    if ret==True:
-        # write the flipped frame
-        out.write(frame)
-
-        filename = './test' +  str(int(x)) + ".jpg";x+=1
-        cv2.imwrite(filename, frame)
-
-        cv2.imshow('frame',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    else:
-        break
-# Release everything if job is finished
-cap.release()
-out.release()
-cv2.destroyAllWindows()
+cv2.imshow("window",img)
+cv2.waitKey(0)
