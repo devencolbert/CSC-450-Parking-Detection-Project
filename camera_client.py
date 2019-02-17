@@ -24,6 +24,8 @@ while(cap.isOpened()):
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        if x > 3:
+            break
     else:
         break
 # Release everything if job is finished
