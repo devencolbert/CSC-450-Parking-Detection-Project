@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title>Campus Parking</title>
-	<h2 class="header">Real-Time Parking Detection</h2>
 	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 
-	<nav class="navbar navbar-light bg-light">
-			<a class="navbar-brand" href="#">Navbar</a>
-	</nav>
-
-
+	
 	<style>
 		* {
   			font-family: Arial;
@@ -30,10 +25,59 @@
 	</style>	
 </head>
 <body>
-	<h4>Available Parking</h4>
-	<div id="content">content</div>
-	<div id="content">content</div>
-	<div id="content">content</div>
+	<div class="jumbotron text-center">
+		<h1>Real Time Parking Detection</h1>
+		<p>At Missouri State University</p> 
+	</div>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Real Time Parking</a>
+			</div>
+			  <ul class="nav navbar-nav">
+				<li class="active"><a href="#">Home</a></li>
+				<li><a href="#">Info</a></li>
+			  </ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Admin Login</a></li>
+			</ul>
+			</div>
+	</nav>
+	
+	<div class="container">
+			<h2>Available Parking</h2>
+			<p>Click on a lot to see more information</p>            
+			<table class="table table-hover">
+			  <thead>
+				<tr>
+				  <th>Parking Lot</th>
+				  <th>Percentage Full</th>
+				  <th>Total Spaces</th>
+				  <th>Available Spaces</th>
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr>
+				  <td>Bear Park South</td>
+				  <td>50%</td>
+				  <td>100</td>
+				  <td>50</td>
+				</tr>
+				<tr>
+				  <td>Bear Park North</td>
+				  <td>30%</td>
+				  <td>100</td>
+				  <td>70</td>
+				</tr>
+				<tr>
+				  <td>Rec Center</td>
+				  <td>90%</td>
+				  <td>20</td>
+				  <td>2</td>
+				</tr>
+			  </tbody>
+			</table>
+	</div>
 	<br>
 	<br>
 	<br>
