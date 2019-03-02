@@ -3,6 +3,7 @@ from flask import Flask, request, render_template
 import sqlite3
 
 DATABASE = 'C:\\Users\\Connor\\Documents\\project\\app.db'
+print(DATABASE) #temporary static directory path
 
 @app.route('/')
 @app.route('/index')
