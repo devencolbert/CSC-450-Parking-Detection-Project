@@ -79,6 +79,14 @@
 			</table>
 	</div>
 	<br>
+	{% for item in data %}
+	<tr>
+    		<td>{{item[0]}}</td>
+    		<td>{{item[1]}}</td>
+    		<td>{{item[2]}}</td>
+    		...
+	</tr>
+	{% endfor %}
 	<br>
 	<br>
 	<p>This is a web interface for the Real-Time Parking Detection system.</p>
