@@ -13,3 +13,11 @@ def index():
     cur.execute("SELECT * FROM Lot")
     data = cur.fetchall()
     return render_template('index.html', data=data)
+
+@app.route('/info')
+def info():
+    con = sqlite3.connect(DATABASE)
+    cur = con.cursor()
+    cur.execute("SELECT * FROM Spot")
+    data = cur.fetchall()
+    return render_template('info.html', data=data)
