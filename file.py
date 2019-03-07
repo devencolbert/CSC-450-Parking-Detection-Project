@@ -32,14 +32,16 @@ img4 = line_img.copy()
 dilation = cv2.dilate(line_img,kernel,iterations = 3)
 dilation2 = cv2.dilate(img4,kernel,iterations = 2)
 result = dilation - dilation2
-edges = cv2.Canny(result, 300, 350, apertureSize = 3)
+edges = cv2.Canny(result, 50, 150, apertureSize = 3)
 
-lines = cv2.HoughLinesP(edges,1,np.pi/180,20,minLineLength,maxLineGap)
+lines = cv2.HoughLinesP(edges,1,np.pi/180,0,minLineLength,maxLineGap)
 for line in lines:
     for x1,y1,x2,y2 in line:
         cv2.line(result_img,(x1,y1),(x2,y2),(0,255,0),4)
 
-erosion = cv2.erode(result_img,kernel,iterations = 1)
+#erosion = cv2.erode(result_img,kernel,iterations = 1)
+edges = cv2.Canny(result_img, 300, 350, apertureSize = 3)
+ret,thresh = cv2.threshold(edges,127,255,0)
 
 ret2,thresh2 = cv2.threshold(edges2,127,255,0)
 contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -60,10 +62,10 @@ for cnt in contours:
     box = np.int0(box)
     img = cv2.drawContours(img,[box],0,(0,255,0),2)
 '''
-#img = cv2.drawContours(img, contours, -1, (150,255,0), 1)
+#img = cv2.drawContours(img, contours, -1, (150,255,0), 3)
 #img2 = cv2.drawContours(img2, contours2, -1, (150,255,0), 1)
-img3 = cv2.addWeighted(img, 0.8, line_img, 1, 0)
+img3 = cv2.addWeighted(img, 0.8, result_img, 1, 0)
 
-cv2.imshow("window",erosion)
+cv2.imshow("window",img3)
 #cv2.imshow("window2",thresh)
 cv2.waitKey(0)
