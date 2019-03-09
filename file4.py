@@ -6,7 +6,7 @@ refPt = []
 cropping = False
 data = []
 file_path = 'parking_spots.yml'
-img = cv2.imread('test_pic.png')
+img = cv2.imread('test2.jpg')
 
 def yaml_loader(file_path):
     with open(file_path, "r") as file_descr:

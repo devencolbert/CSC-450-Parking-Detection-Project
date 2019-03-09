@@ -1,13 +1,14 @@
 import yaml
 import numpy as np
 import cv2
+import camera_client
 
 # path references
-fn = "test_vid.mp4" #3
+fn = "test2.jpg" #3
 #fn = "datasets\parkinglot_1_720p.mp4"
 #fn = "datasets\street_high_360p.mp4"
 fn_yaml = "parking_spots.yml"
-fn_out =  "test4.avi"
+fn_out =  "test4.jpg"
 cascade_src = 'Khare_classifier_02.xml'
 car_cascade = cv2.CascadeClassifier(cascade_src)
 global_str = "Last change at: "
