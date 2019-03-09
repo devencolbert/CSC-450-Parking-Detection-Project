@@ -5,7 +5,7 @@ import numpy as np
         
 sum_up = 0.0
 delta_list = []
-frame = cv2.imread('test_pic.png') #
+frame = cv2.imread('test1.jpg') #
 parking_bounding_rects = []
 parking_mask = []
 frame_blur = cv2.GaussianBlur(frame.copy(), (5,5), 3)
