@@ -2,7 +2,7 @@ import cv2
 import yaml
 import numpy as np
 
-file_path = 'parking_spots1.yml'
+file_path = 'parking_spots.yml'
 img = cv2.imread('test1.jpg')
 refPt = []
 data = []
@@ -19,7 +19,7 @@ def yaml_dump(file_path, data):
 
 
 def click_and_crop(event, x, y, flags, param):
-    info = {'id': 1, 'points': []}
+    info = {'id': 0, 'points': []}
     global refPt, cropping
 
     if event == cv2.EVENT_LBUTTONDBLCLK:
@@ -31,7 +31,7 @@ def click_and_crop(event, x, y, flags, param):
             if yaml_loader(file_path) != None:
                 new_data = len(yaml_loader(file_path))
             else:
-                new_data = 1
+                new_data = 0
         else:
            if yaml_loader(file_path) != None:
                new_data = len(data) + len(yaml_loader(file_path))
@@ -49,7 +49,7 @@ def click_and_crop(event, x, y, flags, param):
         corner_4 = list(refPt[1])
 
         info['points'] = [corner_1, corner_2, corner_3, corner_4]
-        info['id'] = new_data
+        info['id'] = new_data + 1
         data.append(info)
         refPt = []
 

@@ -5,18 +5,14 @@ import matplotlib.pyplot as plt
 import importlib
 import os, glob
 #import camera_client
-import file4
+#import datasets
 
-#moduleName = input('Enter module name: ')
-#importlib.import_module(moduleName)
 
 def run_classifier(img, id, car_cascade):
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     cars = car_cascade.detectMultiScale(img, 1.1, 1)
     if cars == ():
         return False
     else:
-        # parking_status[id] = False
         return True
 
 
@@ -46,7 +42,7 @@ def get_parking_info(parking_data):
     return parking_contours, parking_bounding_rects, parking_mask, parking_data_motion;
 
 def set_erode_kernel():
-    kernel_erode = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3)) # morphological kernel
+    kernel_erode = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
     return kernel_erode
 
 def set_dilate_kernel():
@@ -83,14 +79,14 @@ def print_parkIDs(park, points, line_img, car_cascade,
         moments = cv2.moments(points)
         centroid = (int(moments['m10']/moments['m00'])-3, int(moments['m01']/moments['m00'])+3)
         # putting numbers on marked regions
-        cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-        cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-        cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-        cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-        cv2.putText(line_img, str(park['id']), centroid, cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+        cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(line_img, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
 def detection(parking_bounding_rects, parking_data, parking_status,
-              parking_buffer, grayImg, video_cur_pos, parking_mask, line_img, car_cascade):
+              parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade):
     #info = {'id': 0, 'availability': ''}
     #file_path = 'parking_spots_info.yml'
     # detecting cars and vacant spaces
@@ -109,12 +105,12 @@ def detection(parking_bounding_rects, parking_data, parking_status,
         status = delta < 2.2
         # If detected a change in parking status, save the current time
         if status != parking_status[ind] and parking_buffer[ind]==None:
-            parking_buffer[ind] = video_cur_pos
-            change_pos = video_cur_pos
+            parking_buffer[ind] = pos
+            change_pos = pos
             
         # If status is still different than the one saved and counter is open
         elif status != parking_status[ind] and parking_buffer[ind]!=None:
-            if video_cur_pos - parking_buffer[ind] > 1:
+            if pos - parking_buffer[ind] > 1:
                 parking_status[ind] = status
                 parking_buffer[ind] = None
         # If status is still same and counter is open
@@ -180,7 +176,11 @@ def main():
 
     fn = "output.mp4"
     fn_yaml = "parking_spots.yml"
+
     parking_data = parking_datasets(fn_yaml)
+    if parking_data == None:
+        import datasets
+
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
     global_str = "Last change at: "
@@ -205,11 +205,11 @@ def main():
     fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
     
     while(cap.isOpened()):
-        video_cur_pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
-        video_cur_frame = cap.get(cv2.CAP_PROP_POS_FRAMES) # Index of the frame to be decoded/captured next
-        ret, frame_initial = cap.read()
+        pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
+        frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES) # Index of the frame to be decoded/captured next
+        ret, first_frame = cap.read()
         if ret == True:
-            frame = cv2.resize(frame_initial, None, fx=0.6, fy=0.6)
+            frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
         if ret == False:
             print("Video ended")
             break
@@ -220,7 +220,7 @@ def main():
         line_img = frame.copy()
 
         # Drawing the Overlay. Text overlay at the left corner of screen
-        str_on_frame = "%d/%d" % (video_cur_frame, video_info['num_of_frames'])
+        str_on_frame = "%d/%d" % (frame_pos, video_info['num_of_frames'])
         cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
                         0.8, (0,255,255), 2, cv2.LINE_AA)
 
@@ -240,7 +240,7 @@ def main():
 
     #Use the classifier to detect cars and help determine which parking spaces are available and unavailable
         detection(parking_bounding_rects, parking_data, parking_status,
-                  parking_buffer, grayImg, video_cur_pos, parking_mask, line_img, car_cascade)
+                  parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade)
     #Still detect if parking spaces are available or not when cars are in motion
         detect_motion(parking_data_motion, grayImg, kernel_erode, kernel_dilate, car_cascade)
 
@@ -253,9 +253,9 @@ def main():
         if k == ord('q'):
             break
         elif k == ord('j'):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, video_cur_frame+1000) # jump 1000 frames
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos+1000) # jump 1000 frames
         elif k == ord('u'):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, video_cur_frame + 500)  # jump 500 frames
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos + 500)  # jump 500 frames
         if cv2.waitKey(33) == 27:
             break
 
