@@ -70,7 +70,6 @@ def print_parkIDs(park, points, line_img, car_cascade,
     file = open('parking_info.txt', 'a')
     spots_change = 0
     total_spots = len(parking_data)
-    file.write('Frame: ' + str(frame_pos) + '\n')
     for ind, park in enumerate(parking_data):
         points = np.array(park['points'])
         if parking_status[ind]:
@@ -179,9 +178,7 @@ def main():
 
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
-    
-    data = []
-    info = {'id': 0, 'availability': ''}
+
     file_path = 'parking_spots_info.yml'
 
     #video info for processing the footage
