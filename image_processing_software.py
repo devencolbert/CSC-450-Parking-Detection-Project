@@ -63,11 +63,39 @@ def status(parking_data):
         parking_buffer = [None]*len(parking_data)
     return parking_status, parking_buffer;
 
+def parking_info(spot):
+    info = {'id':0, 'availability': ''}
+    data = []
+    file_path = "parking_info.yml"
+    if data == []:
+            
+        if yaml_loader(file_path) != None:
+            if len(yaml_loader(file_path)) == 10:
+                os.remove('parking_info.yml')
+                file_path = "parking_info.yml"
+                new_data = 0
+            else:
+                new_data = len(yaml_loader(file_path))
+        else:
+            new_data = 0
+    else:
+       if yaml_loader(file_path) != None:
+           new_data = len(data) + len(yaml_loader(file_path))
+       else:
+           new_data = len(data)
+
+    info['id'] = new_data + 1
+    info['availability'] = spot
+    data.append(info)
+    if data != []:
+        yaml_dump(file_path, data)
+
 
 def print_parkIDs(park, points, line_img, car_cascade,
-                  parking_bounding_rects, grayImg, parking_data, parking_status, frame_pos):
+                  parking_bounding_rects, grayImg, parking_data, parking_status, vpl):
 
-    file = open('parking_info.txt', 'a')
+    #file = open('parking_info.txt', 'a')
+    #global file_path, info, data, new_data
     spots_change = 0
     total_spots = len(parking_data)
     for ind, park in enumerate(parking_data):
@@ -75,7 +103,8 @@ def print_parkIDs(park, points, line_img, car_cascade,
         if parking_status[ind]:
             color = (0,255,0)
             spots_change += 1
-            file.write('Parking space number ' + str(park['id']) + ':' + " available\n")
+            spot = 'Available'
+            #file.write('Parking space number ' + str(park['id']) + ':' + " available\n")
             rect = parking_bounding_rects[ind]
             roi_gray_ov = grayImg[rect[1]:(rect[1] + rect[3]),
                            rect[0]:(rect[0] + rect[2])]  # crop roi for faster calcluation
@@ -86,13 +115,17 @@ def print_parkIDs(park, points, line_img, car_cascade,
                 color = (0,0,255)
         else:
             color = (0,0,255)
-            file.write('Parking space number ' + str(park['id']) + ':' + " unavailable\n")
-            if str(park['id']) == '10':
-                file.write('\n' + '\n')
+            spot = 'Unavailable'
+            #file.write('Parking space number ' + str(park['id']) + ':' + " unavailable\n")
+            #if str(park['id']) == '10':
+            #    file.write('\n' + '\n')
             #spot = 'Unavailable'
         
         cv2.drawContours(line_img, [points], contourIdx=-1,
                              color=color, thickness=2, lineType=cv2.LINE_8)
+        cv2.drawContours(vpl, [points], contourIdx=-1,
+                             color=color, thickness=2, lineType=cv2.LINE_8)
+        
         moments = cv2.moments(points)
         centroid = (int(moments['m10']/moments['m00'])-3, int(moments['m01']/moments['m00'])+3)
         # putting numbers on marked regions
@@ -101,7 +134,15 @@ def print_parkIDs(park, points, line_img, car_cascade,
         cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
         cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
         cv2.putText(line_img, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
-    file.close()
+
+        cv2.putText(vpl, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(vpl, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+        cv2.putText(vpl, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+
+        parking_info(spot)
+    #file.close()
         
     
 
@@ -119,12 +160,11 @@ def print_parkIDs(park, points, line_img, car_cascade,
                         0.7, (0,0,0), 2, cv2.LINE_AA)
 
         #info['availability'] = spot
-        #info['id'] = park['id']
-        #data.append(info)
+        
 
 
 def detection(parking_bounding_rects, parking_data, parking_status,
-              parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, frame_pos):
+              parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, vpl):
 
     spots_change = 0
     # detecting cars and vacant spaces
@@ -157,7 +197,7 @@ def detection(parking_bounding_rects, parking_data, parking_status,
 # changing the color on the basis on status change occured in the above section and putting numbers on areas
     
         print_parkIDs(park, points, line_img, car_cascade,
-                      parking_bounding_rects, grayImg, parking_data, parking_status, frame_pos)
+                      parking_bounding_rects, grayImg, parking_data, parking_status, vpl)
  
     
 def main():
@@ -175,11 +215,15 @@ def main():
     parking_data = parking_datasets(fn_yaml)
     if parking_data == None:
         import datasets
+    parking_data = parking_datasets(fn_yaml)
 
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
 
-    file_path = 'parking_spots_info.yml'
+    file_path = "parking_info.yml"
+    info = {'id': 0, 'availability': ''}
+    data = []
+    new_data = 0
 
     #video info for processing the footage
     cap = cv2.VideoCapture(fn)
@@ -212,6 +256,7 @@ def main():
         blurImg = cv2.GaussianBlur(frame.copy(), (5,5), 3)
         grayImg = cv2.cvtColor(blurImg, cv2.COLOR_BGR2GRAY)
         line_img = frame.copy()
+        vpl = np.copy(line_img) * 0 #Virtual Parking Lot
 
         # Drawing the Overlay. Text overlay at the left corner of screen
         str_on_frame = "%d/%d" % (frame_pos, video_info['num_of_frames'])
@@ -236,7 +281,8 @@ def main():
 
     #Use the classifier to detect cars and help determine which parking spaces are available and unavailable
         detection(parking_bounding_rects, parking_data, parking_status,
-                  parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, frame_pos)
+                  parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, vpl)
+        cv2.imwrite("virtual_parking_lot.jpg",vpl)
 
 
         

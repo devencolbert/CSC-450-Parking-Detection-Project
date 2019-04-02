@@ -1,0 +1,10 @@
+- {availability: Unavailable, id: 1}
+- {availability: Unavailable, id: 2}
+- {availability: Unavailable, id: 3}
+- {availability: Available, id: 4}
+- {availability: Available, id: 5}
+- {availability: Available, id: 6}
+- {availability: Available, id: 7}
+- {availability: Available, id: 8}
+- {availability: Unavailable, id: 9}
+- {availability: Unavailable, id: 10}

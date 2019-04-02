@@ -38,10 +38,10 @@ def click_and_crop(event, x, y, flags, param):
            else:
                new_data = len(data)
 
-        cv2.line(image, refPt[0], refPt[1], (0, 0, 255), 2)
-        cv2.line(image, refPt[1], refPt[2], (0, 0, 255), 2)
-        cv2.line(image, refPt[2], refPt[3], (0, 0, 255), 2)
-        cv2.line(image, refPt[3], refPt[0], (0, 0, 255), 2)
+        cv2.line(image, refPt[0], refPt[1], (0, 0, 255), 1)
+        cv2.line(image, refPt[1], refPt[2], (0, 0, 255), 1)
+        cv2.line(image, refPt[2], refPt[3], (0, 0, 255), 1)
+        cv2.line(image, refPt[3], refPt[0], (0, 0, 255), 1)
 
         corner_1 = list(refPt[2])
         corner_2 = list(refPt[3])
