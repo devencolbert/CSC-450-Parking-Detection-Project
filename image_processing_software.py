@@ -1,3 +1,5 @@
+from app import app, db
+from app.models import Yaml, Frame
 import yaml
 import numpy as np
 import cv2
@@ -171,7 +173,12 @@ def main():
             fn = "output.mp4"'''
 
     fn = "output.mp4"
-    fn_yaml = "parking_spots.yml"
+    yaml_query = db.session.execute("SELECT yaml_fname FROM Yaml WHERE id = 1").fetchall()
+    for row in yaml_query:
+        d = dict(row.items())
+    print(d['yaml_fname'])
+    #fn_yaml = "parking_spots.yml"
+    fn_yaml = d['yaml_fname']                  
 
     parking_data = parking_datasets(fn_yaml)
     if parking_data == None:
