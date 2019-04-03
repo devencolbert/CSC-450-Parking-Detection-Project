@@ -1,26 +1,32 @@
+from app import app, db
+from app.models import Yaml, Frame
+from flask import Flask, session
 import cv2
 import yaml
 import numpy as np
 
-file_path = 'parking_spots.yml'
-img = cv2.imread('test1.jpg')
+img = cv2.imread('test.jpg')
+image = cv2.resize(img, None, fx=0.6, fy=0.6)
 refPt = []
 data = []
 cropping = False
 
 def yaml_loader(file_path):
-    with open(file_path, "r") as file_descr:
+    with open(file_path, "a+") as file_descr:
         data = yaml.load(file_descr)
         return data
 
 def yaml_dump(file_path, data):
-    with open(file_path, "a") as file_descr:
+    with open(file_path, "a+") as file_descr:
         yaml.dump(data, file_descr)
 
 
 def click_and_crop(event, x, y, flags, param):
+    
+    file_path = 'lot_config.yml'
+
     info = {'id': 0, 'points': []}
-    global refPt, cropping
+    global refPt
 
     if event == cv2.EVENT_LBUTTONDBLCLK:
         refPt.append((x,y))
@@ -53,18 +59,34 @@ def click_and_crop(event, x, y, flags, param):
         data.append(info)
         refPt = []
 
-image = cv2.resize(img, None, fx=0.6, fy=0.6)
-clone = image.copy()
-cv2.namedWindow("Click to mark points")
-cv2.imshow("Click to mark points", image)
-cv2.setMouseCallback("Click to mark points", click_and_crop)
-
-while True:
+def main():
+    file_path = 'lot_config.yml'
+    print('Enter ID of CAMERA:')
+    frameid = input()
+    frame_query = db.session.execute("SELECT frame_fname FROM Frame WHERE id = :frame_id", {"frame_id": frameid}).fetchall()
+    for row in frame_query:
+        d = dict(row.items())
+    print(d['frame_fname'])
+    img = cv2.imread(d['frame_fname'])
+    image = cv2.resize(img, None, fx=0.6, fy=0.6)
+    
+    cv2.namedWindow("Click to mark points")
     cv2.imshow("Click to mark points", image)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    cv2.setMouseCallback("Click to mark points", click_and_crop)
+
+    while True:
+        cv2.imshow("Click to mark points", image)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
        
-# data list into yaml file
-if data != []:
-    yaml_dump(file_path, data)
-cv2.destroyAllWindows()
+    # data list into yaml file
+    if data != []:
+        yaml_dump(file_path, data)
+    cv2.destroyAllWindows()
+
+    u = Yaml(yaml_fname=file_path)
+    db.session.add(u)
+    db.session.commit() 
+
+if __name__ == '__main__':
+    main()

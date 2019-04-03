@@ -39,7 +39,7 @@
 				<li><a href="/info">Info</a></li>
 			  </ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Admin Login</a></li>
+				<li><a href="/admin"><span class="glyphicon glyphicon-log-in"></span> Admin Login</a></li>
 			</ul>
 		</div>
 	</nav>
@@ -59,7 +59,7 @@
 			  <tbody>
 				{% for item in data %}
 				<tr>
-				  <td><a href="/info/{{item[0]}}">{{item[1]}}</a></td>
+				  <td><a href="/info/{{item[1]}}">{{item[1]}}</a></td>
 				  <td>{{item[2]}}</td>
 				  <td>{{item[3]}}</td>
 				  <td>{{item[4]}}</td>

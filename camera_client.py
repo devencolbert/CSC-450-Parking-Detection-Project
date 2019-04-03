@@ -1,3 +1,5 @@
+from app import db
+from app.models import Frame
 import numpy as np
 import cv2
 import math
@@ -18,12 +20,14 @@ while(cap.isOpened()):
 
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            filename = './test' +  str(int(1)) + ".jpg";
+            filename = 'test.jpg';
             cv2.imwrite(filename, frame)
             break
     else:
         break
-
+u = Frame(frame_fname = filename, video_fname = 'output.mp4')
+db.session.add(u)
+db.session.commit()
 
 # Release everything if job is finished
 cap.release()
