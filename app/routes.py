@@ -1,39 +1,30 @@
-from app import app, basic_auth
-from flask_login import current_user, login_user
-from flask import Flask, flash, redirect, request, render_template, session, url_for
-import sqlite3
+from app import app, db
+from flask import Flask, request, render_template, session
+#import datasets
 
-DATABASE = 'C:\\Users\\Connor\\Documents\\project\\app.db'
-print(DATABASE) #temporary static directory path
+app.secret_key = app.config['SECRET_KEY']
 
 @app.route('/')
 @app.route('/index')
 def index():
-    con = sqlite3.connect(DATABASE)
-    cur = con.cursor()
-    cur.execute("SELECT * FROM Lot")
-    data = cur.fetchall()
+    #Create connection session between SQLAlchemy database and server
+    #Select ALL records in tables Lot
+    #Store queries in data and push to INDEX template
+    data = db.session.execute("SELECT * FROM Lot").fetchall()
     return render_template('index.html', data=data)
 
-@app.route('/info/<lot_id>')
+@app.route('/info/<location>')
 def info(lot_id):
-    lotid = lot_id
-    con = sqlite3.connect(DATABASE)
-    cur = con.cursor()
-    cur.execute("SELECT * FROM Spot WHERE lot_id = ?", (lotid))
-    data = cur.fetchall()
+    lot_location = location
+    #Create connection session between SQLAlchemy database and server
+    #Select records in table Spot based on LOT_ID parameter
+    #Store queries in data and push to INFO template
+    data = db.session.execute("SELECT * FROM Spot WHERE location = :lot_location;", {"lot_location": lot_location}).fetchall()
     return render_template('info.html', data=data)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        return redirect(url_for('index'))
-    return render_template('login.html', title='Sign In', form=form)
+#@app.route('/test')
+#def test():
+    #return datasets.main()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='8000', debug=True)
