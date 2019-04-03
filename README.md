@@ -15,6 +15,15 @@ python camera_client.py
 python datasets.py
 python image_processing_software.py
 ```
+
+To run test with Deven's files:
+1. Move contents of 'test file' to root
+2. Run
+````
+python datasets.py
+python image_processing_software.py
+```
+
 # Dependencies:
 * Flask
 * Flask-SQLAlchemy
