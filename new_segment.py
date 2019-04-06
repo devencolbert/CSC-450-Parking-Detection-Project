@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import os
+import random
 
 confThreshold = 0.5
 maskThreshold = 0.3
@@ -54,42 +55,41 @@ cap = cv.VideoCapture(0)
     vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
 '''
 
-while cv.waitKey(1) < 0:
+# Draw the predicted bounding box, colorize and show the mask on the image
+def drawBox(frame, classId, conf, left, top, right, bottom, classMask):
+    # Draw a bounding box.
+    cv.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 3)
      
-    # Get frame from the video
-    hasFrame, frame = cap.read()
+    # Print a label of class.
+    label = '%.2f' % conf
+    if classes:
+        assert(classId < len(classes))
+        label = '%s:%s' % (classes[classId], label)
      
-    # Stop the program if reached end of video
-    if not hasFrame:
-        print("Done processing !!!")
-        print("Output file is stored as ", outputFile)
-        cv.waitKey(3000)
-        break
+    # Display the label at the top of the bounding box
+    labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+    top = max(top, labelSize[1])
+    cv.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv.FILLED)
+    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
  
-    # Create a 4D blob from a frame.
-    blob = cv.dnn.blobFromImage(frame, swapRB=True, crop=False)
+    # Resize the mask, threshold, color and apply it on the image
+    classMask = cv.resize(classMask, (right - left + 1, bottom - top + 1))
+    mask = (classMask > maskThreshold)
+    roi = frame[top:bottom+1, left:right+1][mask]
  
-    # Set the input to the network
-    net.setInput(blob)
+    #color = colors[classId%len(colors)]
+    #Comment the above line and uncomment the two lines below to generate different instance colors
+    colorIndex = random.randint(0, len(colors)-1)
+    color = colors[colorIndex]
  
-    # Run the forward pass to get output from the output layers
-    boxes, masks = net.forward(['detection_out_final', 'detection_masks'])
+    frame[top:bottom+1, left:right+1][mask] = ([0.3*color[0], 0.3*color[1], 0.3*color[2]] + 0.7 * roi).astype(np.uint8)
  
-    # Extract the bounding box and mask for each of the detected objects
-    postprocess(boxes, masks)
- 
-    # Put efficiency information.
-    t, _ = net.getPerfProfile()
-    label = 'Mask-RCNN : Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
-    cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-
-    # Write the frame with the detection boxes
-    if (args.image):
-        cv.imwrite(outputFile, frame.astype(np.uint8));
-    else:
-        vid_writer.write(frame.astype(np.uint8))
- 
-    cv.imshow(winName, frame)
+    # Draw the contours on the image
+    mask = mask.astype(np.uint8)
+    retr_tree = cv.RETR_TREE
+    chain_approx_simp = cv.CHAIN_APPROX_SIMPLE
+    contours, hierarchy = cv.findContours(mask, retr_tree, chain_approx_simp)
+    cv.drawContours(frame[top:bottom+1, left:right+1], contours, -1, color, 3, cv.LINE_8, hierarchy, 100)
 
 # For each frame, extract the bounding box and mask for each detected object
 def postprocess(boxes, masks):
@@ -126,37 +126,41 @@ def postprocess(boxes, masks):
             # Draw bounding box, colorize and show the mask on the image
             drawBox(frame, classId, score, left, top, right, bottom, classMask)
 
-            
-# Draw the predicted bounding box, colorize and show the mask on the image
-def drawBox(frame, classId, conf, left, top, right, bottom, classMask):
-    # Draw a bounding box.
-    cv.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 3)
+
+while cv.waitKey(1) < 0:
      
-    # Print a label of class.
-    label = '%.2f' % conf
-    if classes:
-        assert(classId < len(classes))
-        label = '%s:%s' % (classes[classId], label)
+    # Get frame from the video
+    hasFrame, frame = cap.read()
      
-    # Display the label at the top of the bounding box
-    labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-    top = max(top, labelSize[1])
-    cv.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv.FILLED)
-    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
+    # Stop the program if reached end of video
+    if not hasFrame:
+        print("Done processing !!!")
+        print("Output file is stored as ", outputFile)
+        cv.waitKey(3000)
+        break
  
-    # Resize the mask, threshold, color and apply it on the image
-    classMask = cv.resize(classMask, (right - left + 1, bottom - top + 1))
-    mask = (classMask > maskThreshold)
-    roi = frame[top:bottom+1, left:right+1][mask]
+    # Create a 4D blob from a frame.
+    blob = cv.dnn.blobFromImage(frame, swapRB=True, crop=False)
  
-    color = colors[classId%len(colors)]
-    # Comment the above line and uncomment the two lines below to generate different instance colors
-    #colorIndex = random.randint(0, len(colors)-1)
-    #color = colors[colorIndex]
+    # Set the input to the network
+    net.setInput(blob)
  
-    frame[top:bottom+1, left:right+1][mask] = ([0.3*color[0], 0.3*color[1], 0.3*color[2]] + 0.7 * roi).astype(np.uint8)
+    # Run the forward pass to get output from the output layers
+    boxes, masks = net.forward(['detection_out_final', 'detection_masks'])
  
-    # Draw the contours on the image
-    mask = mask.astype(np.uint8)
-    im2, contours, hierarchy = cv.findContours(mask,cv.RETR_TREE,cv.CHAIN_APPROX_SIMPLE)
-    cv.drawContours(frame[top:bottom+1, left:right+1], contours, -1, color, 3, cv.LINE_8, hierarchy, 100)
+    # Extract the bounding box and mask for each of the detected objects
+    postprocess(boxes, masks)
+ 
+    # Put efficiency information.
+    t, _ = net.getPerfProfile()
+    label = 'Mask-RCNN : Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
+    cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+
+
+    # Write the frame with the detection boxes
+    if (image):
+        cv.imwrite(outputFile, frame.astype(np.uint8));
+    else:
+        vid_writer.write(frame.astype(np.uint8))
+ 
+    cv.imshow(winName, frame)
