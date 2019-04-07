@@ -6,6 +6,8 @@ import random
 confThreshold = 0.5
 maskThreshold = 0.3
 
+image = cv.imread('cars.jpg')
+
 # Load names of classes
 classesFile = "mscoco_labels.names";
 classes = None
