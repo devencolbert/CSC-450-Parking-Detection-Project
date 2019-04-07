@@ -33,9 +33,10 @@ net = cv.dnn.readNetFromTensorflow('frozen_inference_graph.pb', 'mask_rcnn_incep
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
-outputFile = "cars.jpg"
+outputFile = "maskedImage.jpg"
 
 cap = cv.VideoCapture(0)
+
 
 #vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
 # Get the video writer initialized to save the output video
