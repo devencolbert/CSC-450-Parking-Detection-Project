@@ -23,39 +23,24 @@ for i in range(len(colorsStr)):
     rgb = colorsStr[i].split(', ')
     color = np.array([float(rgb[0]), float(rgb[1]), float(rgb[2])])
     colors.append(color)
- 
-# Give the textGraph and weight files for the model
-#textGraph = "/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
-#modelWeights = "frozen_inference_graph.pb";
- 
+
+winName = 'Mask-RCNN Object detection and Segmentation in OpenCV'
+cv.namedWindow(winName, cv.WINDOW_NORMAL)
+
+
 # Load the network
 net = cv.dnn.readNetFromTensorflow('frozen_inference_graph.pb', 'mask_rcnn_inception_v2_coco_2018_01_28.pbtxt');
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
-'''outputFile = "mask_rcnn_out_py.avi"
-if (args.image):
-    # Open the image file
-    if not os.path.isfile(args.image):
-        print("Input image file ", args.image, " doesn't exist")
-        sys.exit(1)
-    cap = cv.VideoCapture(args.image)
-    outputFile = args.image[:-4]+'_mask_rcnn_out_py.jpg'
-elif (args.video):
-    # Open the video file
-    if not os.path.isfile(args.video):
-        print("Input video file ", args.video, " doesn't exist")
-        sys.exit(1)
-    cap = cv.VideoCapture(args.video)
-    outputFile = args.video[:-4]+'_mask_rcnn_out_py.avi'
-else:
-    # Webcam input'''
+outputFile = "cars.jpg"
+
 cap = cv.VideoCapture(0)
- 
+
+#vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
 # Get the video writer initialized to save the output video
-'''if (not args.image):
+if (not image.any()):
     vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
-'''
 
 # Draw the predicted bounding box, colorize and show the mask on the image
 def drawBox(frame, classId, conf, left, top, right, bottom, classMask):
@@ -160,7 +145,7 @@ while cv.waitKey(1) < 0:
 
 
     # Write the frame with the detection boxes
-    if (image):
+    if (image.any()):
         cv.imwrite(outputFile, frame.astype(np.uint8));
     else:
         vid_writer.write(frame.astype(np.uint8))
