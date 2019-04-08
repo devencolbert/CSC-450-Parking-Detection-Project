@@ -7,12 +7,13 @@ confThreshold = 0.5
 maskThreshold = 0.3
 
 image = cv.imread('cars.jpg')
+video = 'carFootage.mp4'
 
 # Load names of classes
 classesFile = "mscoco_labels.names";
 classes = None
 with open(classesFile, 'rt') as f:
-   classes = f.read().rstrip('\n').split('\n')
+   classes = f.readlines()#.rstrip('\n').split('\n')
  
 # Load the colors
 colorsFile = "colors.txt";
@@ -33,12 +34,21 @@ net = cv.dnn.readNetFromTensorflow('frozen_inference_graph.pb', 'mask_rcnn_incep
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
+#Getting the inputs
 outputFile = "maskedImage.jpg"
+'''
+if (image.any()):
+    cap = cv.VideoCapture(image.astype(int))
+    outputFile = image + '_maskedImage.jpg'
+else:
+'''
+#if(video):
+#    cap = cv.VideoCapture(video)
+#    outputFile = video + '_maskedVideo.mp4'
+#else:
+#cap = cv.VideoCapture(0)
+cap = cv.VideoCapture('parkinglot3.jpg')
 
-cap = cv.VideoCapture(0)
-
-
-#vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
 # Get the video writer initialized to save the output video
 if (not image.any()):
     vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 28, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
@@ -48,17 +58,17 @@ def drawBox(frame, classId, conf, left, top, right, bottom, classMask):
     # Draw a bounding box.
     cv.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 3)
      
-    # Print a label of class.
+    '''# Print a label of class.
     label = '%.2f' % conf
     if classes:
         assert(classId < len(classes))
-        label = '%s:%s' % (classes[classId], label)
+        label = '%s:%s' % (classes[classId], label)'''
      
-    # Display the label at the top of the bounding box
+    '''# Display the label at the top of the bounding box
     labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
     top = max(top, labelSize[1])
     cv.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv.FILLED)
-    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
+    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)'''
  
     # Resize the mask, threshold, color and apply it on the image
     classMask = cv.resize(classMask, (right - left + 1, bottom - top + 1))
@@ -147,7 +157,7 @@ while cv.waitKey(1) < 0:
 
     # Write the frame with the detection boxes
     if (image.any()):
-        cv.imwrite(outputFile, frame.astype(np.uint8));
+        cv.imwrite(outputFile, frame.astype(np.uint8))
     else:
         vid_writer.write(frame.astype(np.uint8))
  

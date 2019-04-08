@@ -1,3 +1,5 @@
+import numpy as np
+
 # loop over each of the individual class IDs in the image
 for classID in np.unique(classMap):
 	# build a binary mask for the current class and then use the mask
