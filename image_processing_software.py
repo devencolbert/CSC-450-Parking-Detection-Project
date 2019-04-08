@@ -4,7 +4,10 @@ import cv2
 import matplotlib.pyplot as plt
 import importlib
 import os, glob
-#import camera_client
+import json
+import base64
+import requests
+from camera_client import Camera
 
 
 def run_classifier(img, id, car_cascade):
@@ -226,14 +229,14 @@ def main():
     new_data = 0
 
     #video info for processing the footage
-    cap = cv2.VideoCapture(fn)
-    video_info = {  'fps':    cap.get(cv2.CAP_PROP_FPS),
+    cap = Camera()
+    '''video_info = {  'fps':    cap.get(cv2.CAP_PROP_FPS),
                     'width':  int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)*0.6),
                     'height': int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)*0.6),
                     'fourcc': cap.get(cv2.CAP_PROP_FOURCC),
-                    'num_of_frames': int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}
+                    'num_of_frames': int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}'''
 
-    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    #cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = get_parking_info(parking_data)
 
@@ -242,26 +245,30 @@ def main():
     parking_status, parking_buffer = status(parking_data)
     fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
     
-    while(cap.isOpened()):
-        pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
+    while True:
+        '''pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
         frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES) # Index of the frame to be decoded/captured next
         ret, first_frame = cap.read()
         if ret == True:
             frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
         if ret == False:
             print("Video ended")
-            break
-
-    # Smooth out the image, then convert to grayscale
+            break'''
+        pos = 0
+        first_frame = cap.get_frame()
+        pos += 1
+        #decimg = cv2.imdecode(first_frame,0)
+        frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
+        # Smooth out the image, then convert to grayscale
         blurImg = cv2.GaussianBlur(frame.copy(), (5,5), 3)
         grayImg = cv2.cvtColor(blurImg, cv2.COLOR_BGR2GRAY)
         line_img = frame.copy()
         vpl = np.copy(line_img) * 0 #Virtual Parking Lot
 
         # Drawing the Overlay. Text overlay at the left corner of screen
-        str_on_frame = "%d/%d" % (frame_pos, video_info['num_of_frames'])
-        cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.8, (0,255,255), 2, cv2.LINE_AA)
+        #str_on_frame = "%d/%d" % (frame_pos, video_info['num_of_frames'])
+        #cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
+        #                0.8, (0,255,255), 2, cv2.LINE_AA)
 
         
 
@@ -290,6 +297,7 @@ def main():
         # Display video
         cv2.imshow('frame', line_img)
         # cv2.imshow('background mask', bw)
+        
         k = cv2.waitKey(1)
         if k == ord('q'):
             break
