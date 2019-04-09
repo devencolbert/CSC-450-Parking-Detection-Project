@@ -21,13 +21,9 @@ class Camera(object):
         #r, encimg = cv2.imencode('.jpg', frame)
         return frame
 
-    def get_sec(self):
-        time = self.video.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
-        return time
-
-    def get_frame_pos(self):
-        frame_pos = self.video.get(cv2.CAP_PROP_POS_FRAMES)
-        return frame_pos
+    def cam_open(self):
+        opened = self.video.isOpened()
+        return opened
 '''
 cam_id = 0
 cap = cv2.VideoCapture(cam_id)

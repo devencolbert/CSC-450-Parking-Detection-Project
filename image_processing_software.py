@@ -7,6 +7,7 @@ import os, glob
 import json
 import base64
 import requests
+import time
 from camera_client import Camera
 
 
@@ -167,7 +168,7 @@ def print_parkIDs(park, points, line_img, car_cascade,
 
 
 def detection(parking_bounding_rects, parking_data, parking_status,
-              parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, vpl):
+              parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl):
 
     spots_change = 0
     # detecting cars and vacant spaces
@@ -182,7 +183,7 @@ def detection(parking_bounding_rects, parking_data, parking_status,
         points[:,1] = points[:,1] - rect[1]
         delta = np.mean(np.abs(laplacian * parking_mask[ind]))
         
-        
+        pos = time.time()
         status = delta < 2.2
         # If detected a change in parking status, save the current time
         if status != parking_status[ind] and parking_buffer[ind]==None:
@@ -212,6 +213,8 @@ def main():
         else:
             fn = "output.mp4"'''
     cap = Camera()
+    frame_pos = 0
+    pos = 0.0
     draw_lines = cap.get_frame()
     fn = "output.mp4"
     fn_yaml = "parking_spots.yml"
@@ -247,7 +250,7 @@ def main():
     parking_status, parking_buffer = status(parking_data)
     fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
     
-    while True:
+    while (cap.cam_open()):
         '''pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
         frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES) # Index of the frame to be decoded/captured next
         ret, first_frame = cap.read()
@@ -256,9 +259,9 @@ def main():
         if ret == False:
             print("Video ended")
             break'''
-        pos = cap.get_sec()
+        start = time.time()
         first_frame = cap.get_frame()
-        frame_pos = cap.get_frame_pos()
+        frame_pos += 1
         
         #decimg = cv2.imdecode(first_frame,0)
         frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
@@ -291,7 +294,7 @@ def main():
 
     #Use the classifier to detect cars and help determine which parking spaces are available and unavailable
         detection(parking_bounding_rects, parking_data, parking_status,
-                  parking_buffer, grayImg, pos, parking_mask, line_img, car_cascade, vpl)
+                  parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl)
         cv2.imwrite("virtual_parking_lot.jpg",vpl)
 
 
@@ -312,7 +315,7 @@ def main():
         #    break
 
     cv2.waitKey(0)
-    cap.release()
+    cap.__del__()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
