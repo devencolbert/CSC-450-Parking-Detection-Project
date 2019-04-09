@@ -1,9 +1,11 @@
 import cv2
 import yaml
 import numpy as np
+from camera_client import Camera
 
 file_path = 'parking_spots.yml'
-img = cv2.imread('test1.jpg')
+cap = Camera()
+img = cap.get_frame()
 refPt = []
 data = []
 cropping = False

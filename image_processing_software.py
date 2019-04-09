@@ -1,6 +1,7 @@
 import yaml
 import numpy as np
 import cv2
+import os
 import time
 from camera_client import Camera
 
@@ -92,8 +93,6 @@ def parking_info(spot):
 def print_parkIDs(park, points, line_img, car_cascade,
                   parking_bounding_rects, grayImg, parking_data, parking_status, vpl):
 
-    #file = open('parking_info.txt', 'a')
-    #global file_path, info, data, new_data
     spots_change = 0
     total_spots = len(parking_data)
     for ind, park in enumerate(parking_data):
@@ -102,7 +101,6 @@ def print_parkIDs(park, points, line_img, car_cascade,
             color = (0,255,0)
             spots_change += 1
             spot = 'Available'
-            #file.write('Parking space number ' + str(park['id']) + ':' + " available\n")
             rect = parking_bounding_rects[ind]
             roi_gray_ov = grayImg[rect[1]:(rect[1] + rect[3]),
                            rect[0]:(rect[0] + rect[2])]  # crop roi for faster calcluation
@@ -114,10 +112,6 @@ def print_parkIDs(park, points, line_img, car_cascade,
         else:
             color = (0,0,255)
             spot = 'Unavailable'
-            #file.write('Parking space number ' + str(park['id']) + ':' + " unavailable\n")
-            #if str(park['id']) == '10':
-            #    file.write('\n' + '\n')
-            #spot = 'Unavailable'
         
         cv2.drawContours(line_img, [points], contourIdx=-1,
                              color=color, thickness=2, lineType=cv2.LINE_8)
@@ -140,7 +134,6 @@ def print_parkIDs(park, points, line_img, car_cascade,
         cv2.putText(vpl, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
         #parking_info(spot)
-    #file.close()
         
     
 
@@ -157,7 +150,6 @@ def print_parkIDs(park, points, line_img, car_cascade,
     cv2.putText(line_img, spots_on_frame  + ' spaces are available', (5,60), cv2.FONT_HERSHEY_COMPLEX,
                         0.7, (0,0,0), 2, cv2.LINE_AA)
 
-        #info['availability'] = spot
         
 
 
@@ -199,43 +191,19 @@ def detection(parking_bounding_rects, parking_data, parking_status,
  
     
 def main():
-
-    '''for roots, dirs, files in os.walk('/'):
-        if "output.mp4" not in files:
-            #import camera_client
-            fn = "output.mp4"
-        else:
-            fn = "output.mp4"'''
+    
     cap = Camera()
     frame_pos = 0
     pos = 0.0
-    draw_lines = cap.get_frame()
-    fn = "output.mp4"
     fn_yaml = "parking_spots.yml"
 
     parking_data = parking_datasets(fn_yaml)
     if parking_data == None:
-        cv2.imwrite('test1.jpg', draw_lines)
         import datasets
     parking_data = parking_datasets(fn_yaml)
 
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
-
-    file_path = "parking_info.yml"
-    info = {'id': 0, 'availability': ''}
-    data = []
-    new_data = 0
-
-    #video info for processing the footage
-    
-    '''video_info = {  'fps':    cap.get(cv2.CAP_PROP_FPS),
-                    'width':  int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)*0.6),
-                    'height': int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)*0.6),
-                    'fourcc': cap.get(cv2.CAP_PROP_FOURCC),
-                    'num_of_frames': int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}'''
-
-    #cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = get_parking_info(parking_data)
 
@@ -245,14 +213,7 @@ def main():
     fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
     
     while (cap.cam_open()):
-        '''pos = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0 # Current position of the video file in seconds
-        frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES) # Index of the frame to be decoded/captured next
-        ret, first_frame = cap.read()
-        if ret == True:
-            frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
-        if ret == False:
-            print("Video ended")
-            break'''
+        
         start = time.time()
         first_frame = cap.get_frame()
         frame_pos += 1
