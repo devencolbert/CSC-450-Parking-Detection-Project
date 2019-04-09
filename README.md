@@ -8,6 +8,9 @@ This is a project that uses edge detection to detection whether a parking space 
 py -3 -m venv venv
 venv\Scripts\activate
 pip install -e .
+
+set FLASK_APP=hello.py
+python -m flask run
 ```
 
 ```
