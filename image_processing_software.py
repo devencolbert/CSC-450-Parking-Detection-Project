@@ -144,7 +144,7 @@ def print_parkIDs(park, points, line_img, car_cascade,
         cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
         cv2.putText(vpl, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
-        parking_info(spot)
+        #parking_info(spot)
     #file.close()
         
     
@@ -211,12 +211,14 @@ def main():
             fn = "output.mp4"
         else:
             fn = "output.mp4"'''
-
+    cap = Camera()
+    draw_lines = cap.get_frame()
     fn = "output.mp4"
     fn_yaml = "parking_spots.yml"
 
     parking_data = parking_datasets(fn_yaml)
     if parking_data == None:
+        cv2.imwrite('test1.jpg', draw_lines)
         import datasets
     parking_data = parking_datasets(fn_yaml)
 
@@ -229,7 +231,7 @@ def main():
     new_data = 0
 
     #video info for processing the footage
-    cap = Camera()
+    
     '''video_info = {  'fps':    cap.get(cv2.CAP_PROP_FPS),
                     'width':  int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)*0.6),
                     'height': int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)*0.6),
@@ -254,9 +256,10 @@ def main():
         if ret == False:
             print("Video ended")
             break'''
-        pos = 0
+        pos = cap.get_sec()
         first_frame = cap.get_frame()
-        pos += 1
+        frame_pos = cap.get_frame_pos()
+        
         #decimg = cv2.imdecode(first_frame,0)
         frame = cv2.resize(first_frame, None, fx=0.6, fy=0.6)
         # Smooth out the image, then convert to grayscale
@@ -266,9 +269,9 @@ def main():
         vpl = np.copy(line_img) * 0 #Virtual Parking Lot
 
         # Drawing the Overlay. Text overlay at the left corner of screen
-        #str_on_frame = "%d/%d" % (frame_pos, video_info['num_of_frames'])
-        #cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
-        #                0.8, (0,255,255), 2, cv2.LINE_AA)
+        str_on_frame = "%d/%d" % (frame_pos,5000)
+        cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.8, (0,255,255), 2, cv2.LINE_AA)
 
         
 
@@ -301,12 +304,12 @@ def main():
         k = cv2.waitKey(1)
         if k == ord('q'):
             break
-        elif k == ord('j'):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos+1000) # jump 1000 frames
-        elif k == ord('u'):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos + 500)  # jump 500 frames
-        if cv2.waitKey(33) == 27:
-            break
+        #elif k == ord('j'):
+        #    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos+1000) # jump 1000 frames
+        #elif k == ord('u'):
+        #    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos + 500)  # jump 500 frames
+        #if cv2.waitKey(33) == 27:
+        #    break
 
     cv2.waitKey(0)
     cap.release()
