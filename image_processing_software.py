@@ -1,12 +1,6 @@
 import yaml
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import importlib
-import os, glob
-import json
-import base64
-import requests
 import time
 from camera_client import Camera
 
