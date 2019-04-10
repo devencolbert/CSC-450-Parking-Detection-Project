@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 import os
 import time
+import json
+import requests
 from camera_client import Camera
 
 
@@ -13,6 +15,10 @@ def run_classifier(img, id, car_cascade):
     else:
         return True
 
+#def detect_cars():
+    #from new_segment import coordinates
+    
+    
 
 def parking_datasets(fn_yaml):
     with open(fn_yaml, 'r') as stream:
@@ -204,6 +210,7 @@ def main():
 
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
+    #detect_cars()
 
     parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = get_parking_info(parking_data)
 
@@ -227,7 +234,7 @@ def main():
         vpl = np.copy(line_img) * 0 #Virtual Parking Lot
 
         # Drawing the Overlay. Text overlay at the left corner of screen
-        str_on_frame = "%d/%d" % (frame_pos,5000)
+        str_on_frame = "%d" % (frame_pos)
         cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
                         0.8, (0,255,255), 2, cv2.LINE_AA)
 
