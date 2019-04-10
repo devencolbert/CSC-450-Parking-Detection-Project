@@ -3,7 +3,7 @@ import cv2 as cv
 import os
 import random
 
-confThreshold = 0.5
+confThreshold = 0.3
 maskThreshold = 0.3
 
 image = cv.imread('cars.jpg')
