@@ -9,7 +9,7 @@ py -3 -m venv venv
 venv\Scripts\activate
 pip install -e .
 
-set FLASK_APP=hello.py
+set FLASK_APP=server.py
 python -m flask run
 ```
 
