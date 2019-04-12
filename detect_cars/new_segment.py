@@ -2,6 +2,7 @@ import numpy as np
 import cv2 as cv
 import os
 import random
+import yaml
 from camera_client import Camera
 confThreshold = 0.5
 maskThreshold = 0.3
@@ -124,12 +125,26 @@ def postprocess(boxes, masks):
              
             # Draw bounding box, colorize and show the mask on the image
             drawBox(frame, classId, score, left, top, right, bottom, classMask)
+            info = {'coors': []}
+            coor = []
+            data = []
+            coor.append((top, left))
+            coor.append((bottom, right))
+            corner_1 = list(coor[0])
+            corner_2 = list(coor[1])
+            info['coors'] = [corner_1, corner_2]
+            data.append(info)
+            with open('car_coor.yml','a') as file:
+                yaml.dump(data, file)
 
 
 while cv.waitKey(1) < 0:
      
     # Get frame from the video
     frame = cap.get_frame()
+    exists = os.path.isfile('car_coor.yml')
+    if exists:
+        os.remove('car_coor.yml')
     hasFrame = True
      
     # Stop the program if reached end of video
