@@ -3,9 +3,9 @@ import numpy as np
 import cv2
 import os
 import time
-import json
 import requests
 from camera_client import Camera
+#import detect_cars.new_segment
 
 
 def run_classifier(img, id, car_cascade):
@@ -102,20 +102,20 @@ def parking_info(spot):
         yaml_dump(file_path, data)
 
 def detect_cars():
-    import new_segment
+    #from .detect_cars.new_segment import *
     fn = "car_coor.yml"
     with open(fn, 'r') as stream:
         car_coor = yaml.load(stream)
     return car_coor
 
-def print_parkIDs(park, points, line_img, car_coor,
-                  parking_bounding_rects, grayImg, parking_data, overlap, vpl):
+def print_parkIDs(park, points, line_img, car_cascade,
+                  parking_bounding_rects, grayImg, parking_data, parking_status, vpl):
 
     spots_change = 0
     total_spots = len(parking_data)
     for ind, park in enumerate(parking_data):
         points = np.array(park['points'])
-        if not overlap:
+        if parking_status[ind]:
             color = (0,255,0)
             spots_change += 1
             spot = 'Available'
@@ -172,25 +172,25 @@ def print_parkIDs(park, points, line_img, car_coor,
 
 
 def detection(parking_bounding_rects, parking_data, parking_status,
-              parking_buffer, grayImg, start, parking_mask, line_img, car_coor, vpl):
+              parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl):
 
     spots_change = 0
-    coors = []
+    '''coors = []
     car_rect = []
     car_bounding_rects = get_car_info(car_coor)
     for ind, coor in enumerate(car_coor):
         coors = np.array(coor['coors'])
-        car_rect = car_bounding_rects[ind]
+        car_rect = car_bounding_rects[ind]'''
     # detecting cars and vacant spaces
     for ind, park in enumerate(parking_data):
         points = np.array(park['points'])
         rect = parking_bounding_rects[ind]
 
-        if points[2].all() > coors[1].all() or points[0].all() > coors[0].all():
+        '''if points[2].all() > coors[1].all() or points[0].all() > coors[0].all():
             #print(points)
             overlap = False
         else:
-            overlap = True
+            overlap = True'''
         roi_gray = grayImg[rect[1]:(rect[1]+rect[3]), rect[0]:(rect[0]+rect[2])] # crop roi for faster calcluation
 
         laplacian = cv2.Laplacian(roi_gray, cv2.CV_64F)
@@ -201,7 +201,7 @@ def detection(parking_bounding_rects, parking_data, parking_status,
         
         pos = time.time()
         
-        '''status = delta < 2.2
+        status = delta < 2.2
         # If detected a change in parking status, save the current time
         if status != parking_status[ind] and parking_buffer[ind]==None:
             parking_buffer[ind] = pos
@@ -213,16 +213,17 @@ def detection(parking_bounding_rects, parking_data, parking_status,
                 parking_buffer[ind] = None
         # If status is still same and counter is open
         elif status == parking_status[ind] and parking_buffer[ind]!=None:
-            parking_buffer[ind] = None'''
+            parking_buffer[ind] = None
 
 # changing the color on the basis on status change occured in the above section and putting numbers on areas
     
-        print_parkIDs(park, points, line_img, car_coor,
-                      parking_bounding_rects, grayImg, parking_data, overlap, vpl)
+        print_parkIDs(park, points, line_img, car_cascade,
+                      parking_bounding_rects, grayImg, parking_data, parking_status, vpl)
  
     
 def main():
-    
+
+    url = "http://localhost:8000"
     cap = Camera()
     frame_pos = 0
     pos = 0.0
@@ -235,7 +236,7 @@ def main():
 
     cascade_src = 'cars.xml'
     car_cascade = cv2.CascadeClassifier(cascade_src)
-    car_coor = detect_cars()
+    #car_coor = detect_cars()
 
     parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = get_parking_info(parking_data)
 
@@ -244,8 +245,7 @@ def main():
     parking_status, parking_buffer = status(parking_data)
     fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
     
-    while (cap.cam_open()):
-        
+    while True:
         start = time.time()
         first_frame = cap.get_frame()
         frame_pos += 1
@@ -281,7 +281,7 @@ def main():
 
     #Use the classifier to detect cars and help determine which parking spaces are available and unavailable
         detection(parking_bounding_rects, parking_data, parking_status,
-                  parking_buffer, grayImg, start, parking_mask, line_img, car_coor, vpl)
+                  parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl)
         cv2.imwrite("virtual_parking_lot.jpg",vpl)
 
 

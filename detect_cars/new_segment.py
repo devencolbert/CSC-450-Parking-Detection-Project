@@ -11,7 +11,7 @@ image = cv.imread('cars.jpg')
 video = 'carFootage.mp4'
 
 # Load names of classes
-classesFile = "mscoco_labels.names";
+classesFile = "mscoco_labels.names"
 classes = None
 with open(classesFile, 'rt') as f:
    classes = f.readlines()#.rstrip('\n').split('\n')
