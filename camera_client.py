@@ -5,8 +5,9 @@ import cv2
 
 class Camera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(0)
+        #self.video = cv2.VideoCapture(0)
         #self.video = cv2.VideoCapture('output.mp4')
+        self.video = cv2.VideoCapture('test.jpg')
 
     def __del__(self):
         self.video.release()
