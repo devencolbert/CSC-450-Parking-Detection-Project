@@ -1,4 +1,6 @@
 import numpy as np
+import json
+import requests
 import cv2
 
 class Camera(object):
@@ -12,8 +14,8 @@ class Camera(object):
     def get_frame(self):
         ret, frame = self.video.read()
         r, jpg = cv2.imencode('.jpg', frame)
-        #return jpg.tobytes()
-        return frame
+        return jpg.tobytes()
+        #return frame
 
     def cam_open(self):
         opened = self.video.isOpened()

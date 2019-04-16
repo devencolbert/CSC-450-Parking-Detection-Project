@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import os
 import time
-import requests
+import socket
 from camera_client import Camera
 #import detect_cars.new_segment
 
