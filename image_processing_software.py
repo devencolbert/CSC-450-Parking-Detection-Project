@@ -4,6 +4,9 @@ import cv2
 import os
 import time
 import socket
+import json
+from flask import request
+import requests
 from camera_client import Camera
 #import detect_cars.new_segment
 
@@ -223,7 +226,7 @@ def detection(parking_bounding_rects, parking_data, parking_status,
     
 def main():
 
-    url = "http://localhost:8000"
+    url = "http://localhost:8000/video_feed"
     cap = Camera()
     frame_pos = 0
     pos = 0.0
@@ -247,6 +250,12 @@ def main():
     
     while True:
         start = time.time()
+        #data = requests.get(url, params='frame')
+        #print(data.content)
+        #data = request.data
+        #nparr = np.fromstring(data, np.uint8)
+        #simg = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        #d = json.loads(data.headers)
         first_frame = cap.get_frame()
         frame_pos += 1
         
