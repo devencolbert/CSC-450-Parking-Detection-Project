@@ -5,8 +5,11 @@ import os
 import time
 import socket
 import json
+import base64
+from PIL import Image
 from flask import request
 import requests
+from io import BytesIO
 from camera_client import Camera
 #import detect_cars.new_segment
 
@@ -222,11 +225,25 @@ def detection(parking_bounding_rects, parking_data, parking_status,
     
         print_parkIDs(park, points, line_img, car_cascade,
                       parking_bounding_rects, grayImg, parking_data, parking_status, vpl)
- 
+
+def requestImage():
+    url = "http://localhost:8000/video_feed"
+    '''pic = requests.get(url)
+    if pic.status_code == 200:
+        p = pic.content
+        p = base64.b64decode(p)
+        cv2.imshow('p', p)
+    #return p
+        with open('image.jpg', 'w') as f:
+            f.write(p)'''
+    r = requests.get(url)
+    print(r.content)
+    #return img
+        
     
 def main():
 
-    url = "http://localhost:8000/video_feed"
+    
     cap = Camera()
     frame_pos = 0
     pos = 0.0
@@ -256,7 +273,7 @@ def main():
         #nparr = np.fromstring(data, np.uint8)
         #simg = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         #d = json.loads(data.headers)
-        first_frame = cap.get_frame()
+        first_frame = requestImage()
         frame_pos += 1
         
         #decimg = cv2.imdecode(first_frame,0)

@@ -15,7 +15,7 @@ class Camera(object):
     def get_frame(self):
         ret, frame = self.video.read()
         r, jpg = cv2.imencode('.jpg', frame)
-        return jpg.tobytes()
+        return jpg.tostring()
         #return frame
 
     def cam_open(self):
