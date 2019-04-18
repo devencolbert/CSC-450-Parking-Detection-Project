@@ -7,25 +7,24 @@ confThreshold = 0.3
 maskThreshold = 0.3
 
 image = cv.imread('cars.jpg')
-video = 'carFootage.mp4'
 
 # Load names of classes
 classesFile = "mscoco_labels.names";
 classes = None
 with open(classesFile, 'rt') as f:
-   classes = f.readlines()#.rstrip('\n').split('\n')
- 
+   classes = f.readlines()
+
 # Load the colors
 colorsFile = "colors.txt";
 with open(colorsFile, 'rt') as f:
-    colorsStr = f.readlines()#.rstrip('\n').split('\n')
+    colorsStr = f.readlines()
 colors = []
 for i in range(len(colorsStr)):
     rgb = colorsStr[i].split(', ')
     color = np.array([float(rgb[0]), float(rgb[1]), float(rgb[2])])
     colors.append(color)
 
-winName = 'Mask-RCNN Object detection and Segmentation in OpenCV'
+winName = 'Detected Car'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
 
@@ -36,18 +35,9 @@ net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
 #Getting the inputs
 outputFile = "maskedImage.jpg"
-'''
-if (image.any()):
-    cap = cv.VideoCapture(image.astype(int))
-    outputFile = image + '_maskedImage.jpg'
-else:
-'''
-#if(video):
-#    cap = cv.VideoCapture(video)
-#    outputFile = video + '_maskedVideo.mp4'
-#else:
+
 #cap = cv.VideoCapture(0)
-cap = cv.VideoCapture('parkinglot3.jpg')
+cap = cv.VideoCapture('toyCars2.jpg')
 
 # Get the video writer initialized to save the output video
 if (not image.any()):
