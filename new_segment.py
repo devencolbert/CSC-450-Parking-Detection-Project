@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import os
+import yaml
 import random
 
 confThreshold = 0.3
@@ -37,7 +38,7 @@ net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 outputFile = "maskedImage.jpg"
 
 #cap = cv.VideoCapture(0)
-cap = cv.VideoCapture('toyCars2.jpg')
+cap = cv.VideoCapture('parkinglot3.jpg')
 
 # Get the video writer initialized to save the output video
 if (not image.any()):
@@ -113,6 +114,19 @@ def postprocess(boxes, masks):
              
             # Draw bounding box, colorize and show the mask on the image
             drawBox(frame, classId, score, left, top, right, bottom, classMask)
+            info = {'coors': []}
+            coor = []
+            data = []
+            carId = i+1
+            coor.append((top, left))
+            coor.append((bottom, right))
+            corner_1 = list(coor[0])
+            corner_2 = list(coor[1])
+            info['carId'] = carId
+            info['coors'] = [corner_1, corner_2]
+            data.append(info)
+            with open('car_coor.yml','a') as file:
+                yaml.dump(data, file)
 
 
 while cv.waitKey(1) < 0:
