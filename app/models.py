@@ -48,3 +48,4 @@ class Calculation(db.Model):
     def __repr__(self):
         return '<Calculations {}>'.format(self.id)
 
+
