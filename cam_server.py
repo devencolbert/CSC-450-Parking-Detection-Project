@@ -17,8 +17,11 @@ def gen(camera_client):
 def get_frame():
 	print(request.header)
 	#STEP-1: Locate specific camera
+
 	#STEP-2: Pull-norm-package frame
+	frame = c.package(c.norm_frame(c.get_frame()))
 	#STEP-3: return frame
+	return frame
 """return Response(gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 """
@@ -26,10 +29,14 @@ def get_frame():
 def server_init():
 	pass
 	#STEP-01: Setup camera dictionary (global obj)
+	global cam_dict
+	cam_dict = {'cam_1': 1, 'cam_2': 2, 'cam_3': 3, 'cam_4': 4}
 	#STEP-02: Check if cams connected
+	
 	#done.
 	
 if __name__ == '__main__':
+	c = Camera('live',0,1)
 	server_init()
 	app.run(host='0.0.0.0', port='8000', debug=True)
 	
