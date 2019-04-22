@@ -10,7 +10,8 @@ from PIL import Image
 from flask import request
 import requests
 from io import BytesIO
-from camera_client import Camera
+import urllib.request
+#from camera_client import Camera
 #import detect_cars.new_segment
 
 
@@ -238,13 +239,15 @@ def requestImage():
             f.write(p)'''
     r = requests.get(url)
     print(r.content)
-    #return img
+    with open('image.jpg', 'wb') as f:
+        f.write(r.content)
+    #return r
         
     
 def main():
 
     
-    cap = Camera()
+    #cap = Camera()
     frame_pos = 0
     pos = 0.0
     fn_yaml = "parking_spots.yml"
