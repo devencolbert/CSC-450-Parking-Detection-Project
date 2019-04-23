@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, request, Response
 from lib.cam import Camera
 
 app = Flask(__name__)
@@ -15,9 +15,9 @@ def gen(camera_client):
 
 @app.route('/get_frame')
 def get_frame():
-	print(request.header)
+	print(request.headers)
 	#STEP-1: Locate specific camera
-
+	c = Camera('live',0,cam_dict['cam_1'])
 	#STEP-2: Pull-norm-package frame
 	frame = c.package(c.norm_frame(c.get_frame()))
 	#STEP-3: return frame
@@ -36,7 +36,6 @@ def server_init():
 	#done.
 	
 if __name__ == '__main__':
-	c = Camera('live',0,1)
 	server_init()
 	app.run(host='0.0.0.0', port='8000', debug=True)
 	
