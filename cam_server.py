@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, make_response, Response
+from flask import Flask, render_template, request, Response
 from lib.cam import Camera
 import json
-import numpy
+import numpy as np
 import cv2
 FEEDS = {} #Format: {"<ID>: Camera Object"}
 app = Flask(__name__)
@@ -17,7 +17,8 @@ def get_frame():
     #STEP-1: Locate specific camera
 
     #STEP-2: Pull-norm-package frame
-    frame = FEEDS['id1'].package(FEEDS['id1'].norm_frame(FEEDS['id1'].get_frame()))
+    for i, cam in enumerate(FEEDS):
+        frame = FEEDS[cam].package(FEEDS[cam].norm_frame(FEEDS[cam].get_frame()))
     #STEP-3: return frame
     return frame
 
@@ -46,9 +47,9 @@ def init():
         num += 1
 
     #STEP-02: Check video feeds
-    video_feeds = np.hstack((FEEDS['id1'],FEEDS['id2']))
+    video_feeds = np.hstack((FEEDS['id1'].get_frame(),FEEDS['id2'].get_frame()))
     while(True):
-        cv2.imshow("frame", video_feeds.get_frame())
+        cv2.imshow("frame", video_feeds)
         #cv2.imshow("frame", FEEDS['id2'].get_frame())
         if cv2.waitKey(1) == ord('q'):
             break
