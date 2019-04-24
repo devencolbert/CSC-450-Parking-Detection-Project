@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, render_template, session, make_response, url_for, abort
+from flask import Flask, Response, request, render_template, session, make_response, url_for, abort, send_file
 from flask_admin import Admin, BaseView, expose
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
@@ -84,20 +84,22 @@ def test():
         increment += 1
     return "This page will show video feeds eventually"
 
-@application.route('/test_config', methods=['POST'])
+@application.route('/test_config', methods=['GET'])
 def test_config():
     #var = input('Enter ID: ')
     #print(FEEDS[var])
     #frame = FEEDS[var].package(FEEDS[var].norm_frame(FEEDS[var].get_frame()))
     #print(frame)
-	r = request.data
+	r = requests.get('http://127.0.0.1:8080/get_frame').content
+	print(r)
 	frame = json.loads(r)
 	frame = np.asarray(frame, np.uint8)
 	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 	r, jpg = cv2.imencode('.jpg', frame)
+	#response = make_response(jpg.tobytes())
     #return Response(FEEDS[var])
 	return Response(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + jpg.tobytes() + b'\r\n\r\n', mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return "Frame will display here eventually"
+	#return response
 
 # Accept input for Camera Object ID and Address
 # Timed JSON call (Loop Image Processing Software)
