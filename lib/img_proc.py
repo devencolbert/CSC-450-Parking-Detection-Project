@@ -98,6 +98,9 @@ class ImgProcessor(object):
             return coors
 
     def detect_available(self, cars, spots):
+        #For right now this gives an error:  carCoor_x1 = car_coor[index]['coors'][key][0]
+        #TypeError: list indices must be integers or slices, not dict
+        #Spot Coordinates still need to be implemented
 '''
         #for index in range(len(car_coor)):
         #    for key in car_coor[index]:
