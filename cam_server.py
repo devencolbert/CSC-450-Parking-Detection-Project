@@ -47,7 +47,10 @@ def init():
         num += 1
 
     #STEP-02: Check video feeds
-    video_feeds = np.hstack((FEEDS['id1'].get_frame(),FEEDS['id2'].get_frame()))
+    if len(FEEDS) == 2:
+        video_feeds = np.hstack((FEEDS['id1'].get_frame(),FEEDS['id2'].get_frame()))
+    else:
+        video_feeds = FEEDS['id1'].get_frame()
     while(True):
         cv2.imshow("frame", video_feeds)
         #cv2.imshow("frame", FEEDS['id2'].get_frame())
