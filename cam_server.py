@@ -7,8 +7,8 @@ FEEDS = {} #Format: {"<ID>: Camera Object"}
 app = Flask(__name__)
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def cam_index():
+    return render_template('cam_index.html')
 
 @app.route('/get_frame', methods = ['GET'])
 def get_frame():

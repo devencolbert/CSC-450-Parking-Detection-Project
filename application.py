@@ -84,19 +84,20 @@ def test():
         increment += 1
     return "This page will show video feeds eventually"
 
-@application.route('/test_config', methods = ['GET'])
-def test2():
-    var = input('Enter ID: ')
-    print(FEEDS[var])
-    frame = FEEDS[var].package(FEEDS[var].norm_frame(FEEDS[var].get_frame()))
-    print(frame)
-
-    #frame = json.loads(frame)
-    #frame = np.asarray(frame, np.uint8)
-    #frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+@application.route('/test_config', methods=['POST'])
+def test_config():
+    #var = input('Enter ID: ')
+    #print(FEEDS[var])
+    #frame = FEEDS[var].package(FEEDS[var].norm_frame(FEEDS[var].get_frame()))
+    #print(frame)
+	r = request.data
+	frame = json.loads(r)
+	frame = np.asarray(frame, np.uint8)
+	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+	r, jpg = cv2.imencode('.jpg', frame)
     #return Response(FEEDS[var])
-    #return Response(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame.toBytes() + b'\r\n\r\n', mimetype='multipart/x-mixed-replace; boundary=frame')
-    return "Frame will display here eventually"
+	return Response(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + jpg.tobytes() + b'\r\n\r\n', mimetype='multipart/x-mixed-replace; boundary=frame')
+    #return "Frame will display here eventually"
 
 # Accept input for Camera Object ID and Address
 # Timed JSON call (Loop Image Processing Software)
@@ -106,4 +107,4 @@ def test2():
 # When requested to pull frames, get ID and that calls requests
 
 if __name__ == '__main__':
-    application.run(host = '127.0.0.1', port = '8080', debug = False)
+    application.run(host = '127.0.0.1', port = '8090', debug = False)

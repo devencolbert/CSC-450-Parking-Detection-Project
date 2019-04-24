@@ -1,4 +1,3 @@
-#from car_dect.new_segment import *
 import numpy as np
 import cv2
 import random
