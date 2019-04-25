@@ -20,7 +20,7 @@ class ImgProcessor(object):
         cars = self.detect_cars(frame)
         spots = self.spots
         available_spots = self.detect_available(cars, spots)
-         return available_spots
+        return available_spots
 
         #return available parking spots(results)
 
