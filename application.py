@@ -82,7 +82,7 @@ def show_frame():
     return Response(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + jpg.tobytes() + b'\r\n\r\n', mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @application.route('/test', methods=['GET', 'POST'])
-def test_2():
+def test():
     global inc
     stuff = {'id': 0, 'points': []}
     #if request.method == 'POST':

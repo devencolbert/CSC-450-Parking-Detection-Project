@@ -2,6 +2,7 @@
 import numpy as np
 import cv2
 import random
+import yaml
 class ImgProcessor(object):
 
     def __init__(self):
@@ -12,12 +13,14 @@ class ImgProcessor(object):
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
         #setup parking spots
-        self.spots = None
+        with open('../config.yml', 'r') as stream:
+            self.spots = yaml.load(stream)
 
     def process_frame(self, frame):
         cars = self.detect_cars(frame)
-        spots = self.spot
-        available_spots = self.detect_available(self, cars, spots)
+        spots = self.spots
+        available_spots = self.detect_available(cars, spots)
+        print(available_spots)
 
         #return available parking spots(results)
 
@@ -102,8 +105,27 @@ class ImgProcessor(object):
         #For right now this gives an error:  carCoor_x1 = car_coor[index]['coors'][key][0]
         #TypeError: list indices must be integers or slices, not dict
         #Spot Coordinates still need to be implemented
-'''
-        #for index in range(len(car_coor)):
+
+        for ind, park in enumerate(spots):
+            points = np.array(park['points'])
+            print(points)
+            xA = max(cars[1], points[0][0])
+            yA = max(cars[0], points[0][1])
+            xB = min(cars[3], points[3][0])
+            yB = min(cars[2], points[3][1])
+
+            interArea = (xB - xA + 1) * (yB - yA + 1)
+            carBoxArea = (cars[3] - cars[1] + 1) * (cars[2] - cars[0] + 1)
+            spotBoxArea = (points[3][0] - points[0][0] + 1) * (points[3][1] - points[0][1] + 1)
+
+            iou = interArea / float(carBoxArea + spotBoxArea - interArea)
+            print(abs(iou))
+            if iou < 1 and iou > 0:
+                return 'available'
+            else:
+                return 'unavailable'
+
+        '''#for index in range(len(car_coor)):
         #    for key in car_coor[index]:
         #        print(car_coor[index][key])
         #Assigning each car coordinate to a variable
@@ -139,9 +161,8 @@ class ImgProcessor(object):
 
         iou = interArea / float(carBoxArea + spotBoxArea - interArea)
 
-        return iou
-'''
-        pass
+        return iou'''
+
 
 
 
