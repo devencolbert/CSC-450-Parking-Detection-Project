@@ -92,6 +92,11 @@ class ImgProcessor(object):
             chain_approx_simp = cv2.CHAIN_APPROX_SIMPLE
             contours, hierarchy = cv2.findContours(mask, retr_tree, chain_approx_simp)
             cv2.drawContours(frame[top:bottom+1, left:right+1], contours, -1, color, 3, cv2.LINE_8, hierarchy, 100)
+            while True:
+                cv2.imshow('im', frame)
+                if cv2.waitKey(1) == ord('q'):
+                    break
+            cv2.destroyAllWindows()
             coors.append(top)
             coors.append(left)
             coors.append(bottom)
@@ -106,6 +111,7 @@ class ImgProcessor(object):
         #TypeError: list indices must be integers or slices, not dict
         #Spot Coordinates still need to be implemented
 
+        avail = []
         for ind, park in enumerate(spots):
             points = np.array(park['points'])
             print(points)
@@ -121,9 +127,10 @@ class ImgProcessor(object):
             iou = interArea / float(carBoxArea + spotBoxArea - interArea)
             print(abs(iou))
             if iou < 1 and iou > 0:
-                return 'available'
+                avail.append('available')
             else:
-                return 'unavailable'
+                avail.append('unavailable')
+        return avail
 
         '''#for index in range(len(car_coor)):
         #    for key in car_coor[index]:
