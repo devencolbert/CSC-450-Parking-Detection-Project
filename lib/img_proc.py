@@ -20,7 +20,7 @@ class ImgProcessor(object):
         cars = self.detect_cars(frame)
         spots = self.spots
         available_spots = self.detect_available(cars, spots)
-        print(available_spots)
+         return available_spots
 
         #return available parking spots(results)
 
@@ -101,7 +101,7 @@ class ImgProcessor(object):
             coors.append(left)
             coors.append(bottom)
             coors.append(right)
-            print(coors)
+            #print(coors)
     
         #detect cars
             return coors
@@ -125,7 +125,7 @@ class ImgProcessor(object):
             spotBoxArea = (points[3][0] - points[0][0] + 1) * (points[3][1] - points[0][1] + 1)
 
             iou = interArea / float(carBoxArea + spotBoxArea - interArea)
-            print(abs(iou))
+            #print(abs(iou))
             if iou < 1 and iou > 0:
                 avail.append('available')
             else:
