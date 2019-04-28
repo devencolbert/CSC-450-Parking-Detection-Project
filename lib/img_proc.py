@@ -35,6 +35,7 @@ class ImgProcessor(object):
             rgb = colorsStr[i].split(', ')
             color = np.array([float(rgb[0]), float(rgb[1]), float(rgb[2])])
             colors.append(color)
+            
         blob = cv2.dnn.blobFromImage(frame, swapRB=True, crop=False)
         
  
@@ -43,11 +44,11 @@ class ImgProcessor(object):
         boxes, masks = self.net.forward(['detection_out_final', 'detection_masks'])
         numClasses = masks.shape[1]
         numDetections = boxes.shape[2]
+        print(numDetections)
          
         frameH = frame.shape[0]
         frameW = frame.shape[1]
-        
-         
+
         for i in range(numDetections):
             coors = []
             box = boxes[0, 0, i]
@@ -101,7 +102,7 @@ class ImgProcessor(object):
             coors.append(left)
             coors.append(bottom)
             coors.append(right)
-            #print(coors)
+            print(coors)
     
         #detect cars
             return coors
@@ -125,11 +126,11 @@ class ImgProcessor(object):
             spotBoxArea = (points[3][0] - points[0][0] + 1) * (points[3][1] - points[0][1] + 1)
 
             iou = interArea / float(carBoxArea + spotBoxArea - interArea)
-            #print(abs(iou))
+            print(abs(iou))
             if iou < 1 and iou > 0:
-                avail.append('available')
-            else:
                 avail.append('unavailable')
+            else:
+                avail.append('available')
         return avail
 
         '''#for index in range(len(car_coor)):
