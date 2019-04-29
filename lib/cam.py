@@ -25,7 +25,8 @@ class Camera(object):
 		if(ret == True):
 			return frame
 		else:
-			return None
+			frame = None
+			return frame
 	
 	def norm_frame(self, frame):
 		frame = cv2.resize(frame, None, fx=0.6, fy=0.6)

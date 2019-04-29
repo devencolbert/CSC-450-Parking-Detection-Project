@@ -19,11 +19,13 @@ def get_frame():
 
 	#STEP-2: Pull-norm-package frame
 	frame = FEEDS[cam_id].get_frame()
-	if frame == None:
+	print(frame)
+	if frame is None:
 		#make a blue frame for camera object
-		pass
+		frame = np.zeros([640, 480], dtype=np.uint8)
+		frame.fill(0)
 	else:
-		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame()))
+		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame(frame)))
 	
 	#STEP-3: return frame
 	return frame
@@ -53,7 +55,7 @@ def init():
 		num += 1
 
 	#STEP-02: Check video feeds
-	if len(FEEDS) == 2:
+	'''if len(FEEDS) == 2:
 		video_feeds = np.hstack((FEEDS['id1'].get_frame(),FEEDS['id2'].get_frame()))
 	else:
 		video_feeds = FEEDS['id1'].get_frame()
@@ -62,7 +64,7 @@ def init():
 		#cv2.imshow("frame", FEEDS['id2'].get_frame())
 		if cv2.waitKey(1) == ord('q'):
 			break
-	cv2.destroyAllWindows()
+	cv2.destroyAllWindows()'''
 
 	#STEP-03: return True/False if setup failed
 	input('Press Enter to continue...')
