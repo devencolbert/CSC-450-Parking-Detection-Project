@@ -1,5 +1,24 @@
-{% extends 'admin/master.html' %}
-{% block body %}
-  <p>Lot Configuration test. Frames from each camera should be displayed with links to draw parking lines on them.</p>
-  <img id="bg" style="max-width: 200px;" src="{{ url_for('video_feed') }}">
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<body>
+<h1>View Configuration Form</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+	    {{ form.artist1.label }}<br>
+            {{ form.artist1 }}
+        </p>
+        <p>
+	    {{ form.artist2.label }}<br>
+            {{ form.artist2 }}<form>
+  <input type="button" value="Create New Lot" onclick="msg()">
+</form>
+
+<script>
+function msg() {
+  window.location.href = '/admin/lot/new/?url=%2Fadmin%2Flot%2F';
+}
+</script>
+        </p>
+</body>
+</html>
