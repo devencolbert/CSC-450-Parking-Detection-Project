@@ -3,33 +3,50 @@
 <head>
 <style>
 #canvas {
-    width:390px;
+    width:380px;
     height:auto;
-    border: 10px solid #dd300d;
+    border: 10px solid transparent;
+    margin-left: auto;
+    margin-right: auto;
 }
 .rectangle {
     border: 1px solid #FF0000;
     position: absolute;
 }
-
 img {
     max-width: 600px;
 }
+h1 {
+    text-align: center;
+}
 
+#demo {
+text-align: center;
+}
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
 
-<h1>Lot Configuration Test</h1>
+<h1>Lot Configuration</h1>
 <div id="canvas">
-<img id="bg" src="{{ url_for('show_frame') }}">
+<img id="bg" src="{{ url_for('get_frame') }}">
 </div>
 <p id="demo"></p>
+<form>
+  <input type="button" value="Submit" onclick="msg()">
+</form>
+
+<script>
+function msg() {
+  alert("Configuration submitted!");
+  window.location.href = '/admin';
+}
+</script>
+</form>
 
 <script>
 initDraw(document.getElementById('canvas'));
-
 function initDraw(canvas) {
     function setMousePosition(e) {
         var ev = e || window.event; //Moz || IE
@@ -41,7 +58,6 @@ function initDraw(canvas) {
             mouse.y = ev.clientY + document.body.scrollTop;
         }
     }
-
     var mouse = {
         x: 0,
         y: 0,
@@ -49,7 +65,6 @@ function initDraw(canvas) {
         startY: 0
     };
     var element = null;
-
     canvas.onmousemove = function (e) {
         setMousePosition(e);
         if (element !== null) {
@@ -60,8 +75,6 @@ function initDraw(canvas) {
         }
     }
     
-
-
     canvas.onclick = function (e) {
         if (element !== null) {
             element = null;
@@ -75,7 +88,7 @@ function initDraw(canvas) {
 	    var javascript_data = JSON.stringify(coordinate_total);
 	    $.ajax({
     		type: "POST",
-    		url: "/test",
+    		url: "/configuration/display",
     		contentType: "application/json",
     		dataType: "json",
 		data: javascript_data,
