@@ -7,16 +7,16 @@ import random
 confThreshold = 0.3
 maskThreshold = 0.3
 
-image = cv.imread('car_dect\cars.jpg')
+image = cv.imread('cars.jpg')
 
 # Load names of classes
-classesFile = "car_dect\mscoco_labels.names";
+classesFile = "mscoco_labels.names";
 classes = None
 with open(classesFile, 'rt') as f:
    classes = f.readlines()
 
 # Load the colors
-colorsFile = "car_dect\colors.txt";
+colorsFile = "colors.txt";
 with open(colorsFile, 'rt') as f:
     colorsStr = f.readlines()
 colors = []
@@ -30,7 +30,7 @@ cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
 
 # Load the network
-net = cv.dnn.readNetFromTensorflow('car_dect\frozen_inference_graph.pb', 'car_dect\mask_rcnn_inception_v2_coco_2018_01_28.pbtxt')
+net = cv.dnn.readNetFromTensorflow('frozen_inference_graph.pb', 'mask_rcnn_inception_v2_coco_2018_01_28.pbtxt')
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
@@ -38,7 +38,7 @@ net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 outputFile = "maskedImage.jpg"
 
 #cap = cv.VideoCapture(0)
-cap = cv.VideoCapture('car_dect\parkinglot3.jpg')
+cap = cv.VideoCapture('parkinglot3.jpg')
 
 # Get the video writer initialized to save the output video
 if (not image.any()):

@@ -25,8 +25,14 @@ class ImgProcessor(object):
         #return available parking spots(results)
 
     def detect_cars(self, frame):
-        confThreshold = 0.3
+        confThreshold = 0.5
         maskThreshold = 0.3
+
+        classesFile = "car_dect/mscoco_labels.names";
+        classes = None
+        with open(classesFile, 'rt') as f:
+           classes = f.readlines()
+        
         colorsFile = "car_dect/colors.txt"
         with open(colorsFile, 'rt') as f:
             colorsStr = f.readlines()
@@ -105,7 +111,7 @@ class ImgProcessor(object):
             print(coors)
     
         #detect cars
-            return coors
+        return coors
 
     def detect_available(self, cars, spots):
         #For right now this gives an error:  carCoor_x1 = car_coor[index]['coors'][key][0]
