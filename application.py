@@ -1,10 +1,16 @@
-from flask import Flask, Response, request, render_template, session, make_response, url_for, abort, send_file
+from flask import Flask, Response, request, redirect, render_template, session, make_response, url_for, abort, send_file
 from flask_admin import Admin, BaseView, expose
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
 from storage.database.models import *
-from storage.database.app import *
 from lib.cam import Camera
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectField
+from wtforms.validators import DataRequired
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+
+import storage.database.models
 import numpy as np
 import requests
 import json
@@ -12,6 +18,8 @@ import yaml
 import cv2
 import os
 
+location = None
+object_id = "id1"
 inc = 0
 application = Flask(__name__)
 
@@ -20,108 +28,98 @@ application.config.update(dict(
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(application.root_path + "/storage/database", "app.db"),
     SQLALCHEMY_TRACK_MODIFICATIONS = False,
     DEBUG = False,
-    SECRET_KEY = 'development-key',
+    SECRET_KEY = 'UHu9qUw9SLgKvneuJXmsQRfV',
 ))
+
+#   Database Config
 
 db.init_app(application)
 application.app_context().push()
 db.create_all()
 
-admin = Admin(application, name = 'Admin Portal', template_mode = 'bootstrap3')
+#   Admin Portal
 
 class ConfigurationView(BaseView):
-    @expose('/')
+    @expose(url='/', methods=('GET', 'POST'))
     def index(self):
-        #if request.method == 'POST':
-        data = request.json
-        print(data)
-    #with open('config.yml','r') as yamlfile:
-        #cur_yaml = yaml.load(yamlfile)
-        #cur_yaml.extend(data)
-        #print(cur_yaml)
+        global object_id, location
+        form = LoginForm()
+        if form.validate_on_submit():
+            object_id = form.artist1.data
+            location = form.artist2.data
+            return redirect('/configuration/display')
+        return self.render('configuration.html', form = form)
 
-    #with open('config.yml','w') as yamlfile:
-        #yaml.dump(data, yamlfile, default_flow_style=False)
-                       
-        #return render_template("test.html")
-        return self.render('configuration.html')
+admin = Admin(application, name = 'Admin Portal', template_mode = 'bootstrap3')
 
 admin.add_view(ConfigurationView(name='Configuration', endpoint='configuration'))
 admin.add_view(ModelView(Lot, db.session, category="Database"))
 admin.add_view(ModelView(Spot, db.session, category="Database"))
 
+#   Admin Portal Forms
+
+class LoginForm(FlaskForm):
+    artist1 = StringField('Camera ID', validators=[DataRequired()])
+    #artist2 = SelectField('Location', coerce=int)
+    artist2 = QuerySelectField(
+        'Location',
+        query_factory=lambda: Lot.query,
+        allow_blank=False
+    )
+
+#   Index Route
+
 @application.route('/')
 @application.route('/index')
 def index():
-    #   Create connection session between SQLAlchemy database and server
-    #   Select ALL records in tables Lot
-    #   Store queries in data and push to INDEX template
     data = db.session.execute("SELECT * FROM Lot").fetchall()
     return render_template('index.html', data = data)
+
+#   Info Route
 
 @application.route('/info/<location>')
 def info(lot_id):
     lot_location = location
-    #   Create connection session between SQLAlchemy database and server
-    #   Select records in table Spot based on LOT_ID parameter
-    #   Store queries in data and push to INFO template
-    data = db.session.execute("SELECT * FROM Spot WHERE location = :lot_location;", {"lot_location": lot_location}).fetchall()
     return render_template('info.html', data = data)
 
-@application.route('/show_frame', methods=['GET'])
-def show_frame():
-    #   test_input = test
-    #   var = input('Enter ID: ')
-    #   print(FEEDS[var])
-    #   frame = FEEDS[var].package(FEEDS[var].norm_frame(FEEDS[var].get_frame()))
-    #   print(frame)
-    r = requests.get('http://127.0.0.1:8080/get_frame').content
+#   Test Config Route
+
+@application.route('/get_frame', methods=['GET'])
+def get_frame():
+    r = requests.get('http://127.0.0.1:8080/get_frame', headers = {"cam_id": object_id}).content
     frame = json.loads(r)
     frame = np.asarray(frame, np.uint8)
     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
     r, jpg = cv2.imencode('.jpg', frame)
     return Response(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + jpg.tobytes() + b'\r\n\r\n', mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@application.route('/test', methods=['GET', 'POST'])
-def test():
+#@application.route('/test', methods = ['GET', 'POST'])
+#def test():
+    #global object_id
+    #form = LoginForm()
+    #if form.validate_on_submit():
+        #object_id = form.artist1.data
+        #print(object_id)
+        #return redirect('/display')
+    #return render_template('configuration.html', form = form)
+
+@application.route('/configuration/display', methods = ['GET', 'POST'])
+def display():
     global inc
     stuff = {'id': 0, 'points': []}
-    #if request.method == 'POST':
     arr = []
     data = request.json
-    #info['points'] = request.json
     if data != None:
-        #new_data = len(yaml_loader())
         print(data[0])
         stuff['points'] = [list(data[0]), list(data[1]), list(data[2]), list(data[3])]
         stuff['id'] = inc
         inc = inc + 1
         arr.append(stuff)
-        #obj = json.loads(data)
-    #print(data)
-        with open('config.yml','a') as yamlfile:
+        with open(object_id + '.yml','a') as yamlfile:
             yaml.dump(arr, yamlfile)
-    #cur_yaml = yaml.load(yamlfile)
-    #cur_yaml.extend(data)
-    #print(cur_yaml)
-
-    #with open('config.yml','w') as yamlfile:
-    #yaml.dump(data, yamlfile, default_flow_style=False)
-                       
-    #return render_template("test.html")
+        
     return render_template("test.html")
-
-def yaml_loader():
-    with open('config.yml', "r") as yamlfile:
-        data2 = yaml.load(yamlfile)
-        return data2
-
-# Accept input for Camera Object ID and Address
-# Timed JSON call (Loop Image Processing Software)
-
-# Call Process_Frame
-# Begin image processing as seperate thread
-# When requested to pull frames, get ID and that calls requests
 
 if __name__ == '__main__':
     application.run(host = '127.0.0.1', port = '8090', debug = False)
+
