@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from img_proc import ImgProcessor
 from storage.database import app
-from app.models import Lot, Spot
+from storage.database.models import Lot, Spot
 
 r = requests.get('http://127.0.0.1:8080/get_frame')
 data = r.content
@@ -15,9 +15,8 @@ frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 car_dect = ImgProcessor()
 car = car_dect.process_frame(frame)
 print(car)
-leng = length(car)
-for x in car:
-    stuff = Spot(availability = x, lot_id = 1)
-    db.session.add(x)
-    db.session.commit()
+#for x in car:
+    #stuff = Spot(availability = x, lot_id = 1)
+    #app.session.add(x)
+    #app.session.commit()
   
