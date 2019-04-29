@@ -3,6 +3,7 @@ from flask_admin import Admin, BaseView, expose
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
 from storage.database.models import *
+from storage.database.app import *
 from lib.cam import Camera
 import numpy as np
 import requests
