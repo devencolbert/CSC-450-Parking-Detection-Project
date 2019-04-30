@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Campus Parking</title>
+	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+	
+	<style>
+		* {
+  			font-family: Arial;
+		}
+		body {
+			margin: 0;
+		}
+			
+		.header {
+			background-color: #f1f1f1;
+			padding: 20px;
+			text-align: center;
+		}
+	</style>	
+</head>
+<body>
+	<div class="jumbotron text-center">
+		<h1>Real Time Parking Detection</h1>
+		<p>At Missouri State University</p> 
+	</div>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="http://127.0.0.1:5000">Real Time Parking</a>
+			</div>
+			  <ul class="nav navbar-nav">
+				<li class="active"><a href="http://127.0.0.1:5000">Home</a></li>
+				<li><a href="/info">Info</a></li>
+			  </ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/admin"><span class="glyphicon glyphicon-log-in"></span> Admin Login</a></li>
+			</ul>
+		</div>
+	</nav>
+	
+	<div class="container">
+		<h2>Available Parking</h2>
+			<p>Click on a lot to see more information</p>            
+			<table class="table table-hover">
+			  <thead>
+				<tr>
+				  <th>Parking Lot</th>
+				  <th>Percentage Full</th>
+				  <th>Total Spaces</th>
+				  <th>Available Spaces</th>
+				</tr>
+			  </thead>
+			  <tbody>
+				{% for item in data %}
+				<tr>
+				  <td><a href="/info/{{item[4]}}">{{item[4]}}</a></td>
+				  <td id="perc">{{item[0]}}</td>
+				  <td id="total">{{item[1]}}</td>
+				  <td id="avail">{{item[2]}}</td>
+				</tr>
+				{% endfor %}
+
+			  </tbody>
+			</table>
+        <script>
+        var tot = document.getElementById("total").innerHTML;
+        var avail = document.getElementById("avail").innerHTML;
+        console.log(tot);
+        console.log(avail);
+        var perc = avail/tot;
+        perc = (perc * 100) + "%"
+        console.log(perc);
+            
+            
+        // Create a new text node called "Water"
+        var textnode = document.createTextNode(perc);
+
+            
+        // Get the first child node of an <ul> element
+            
+        var item = document.getElementById("perc");
+
+        // Replace the first child node of <ul> with the newly created text node
+        item.replaceChild(textnode, item.childNodes[0]);
+
+        
+        
+        
+        </script>
+	</div>
+	<br>
+	<br>
+	<br>
+	<p>This is a web interface for the Real-Time Parking Detection system.</p>
+</body>
+</html>
