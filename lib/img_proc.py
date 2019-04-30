@@ -10,11 +10,11 @@ class ImgProcessor(object):
 		#setup variable
 		#self.
 		#network
-		self.net = cv2.dnn.readNetFromTensorflow('car_dect/frozen_inference_graph.pb', 'car_dect/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt');
+		self.net = cv2.dnn.readNetFromTensorflow('lib/car_dect/frozen_inference_graph.pb', 'lib/car_dect/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt');
 		self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 		self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 		#setup parking spots
-		with open('../id1.yml', 'r') as stream:
+		with open('id1.yml', 'r') as stream:
 			self.spots = yaml.load(stream)
 
 	def process_frame(self, frame):
@@ -29,12 +29,12 @@ class ImgProcessor(object):
 		confThreshold = 0.5
 		maskThreshold = 0.3
 
-		classesFile = "car_dect/mscoco_labels.names";
+		classesFile = "lib/car_dect/mscoco_labels.names";
 		classes = None
 		with open(classesFile, 'rt') as f:
 		   classes = f.readlines()
 		
-		colorsFile = "car_dect/colors.txt"
+		colorsFile = "lib/car_dect/colors.txt"
 		with open(colorsFile, 'rt') as f:
 			colorsStr = f.readlines()
 		colors = []

@@ -20,6 +20,7 @@ import cv2
 import os
 import time
 import atexit
+from lib.img_proc import ImgProcessor
 
 location = None
 object_id = "id1"
@@ -73,7 +74,15 @@ class LoginForm(FlaskForm):
 #   Scheduler Test
     
 def car_detect():
-    print("STUFF HAPPENS HERE")
+	r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': 'id1'})
+	data = r.content
+	frame = json.loads(data.decode("utf8"))
+	frame = np.asarray(frame, np.uint8)
+	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+
+	car_dect = ImgProcessor()
+	car = car_dect.process_frame(frame)
+	print(car)
 
 
 scheduler = BackgroundScheduler()
