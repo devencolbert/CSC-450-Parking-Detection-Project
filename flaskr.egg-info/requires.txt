@@ -1,8 +1,0 @@
-flask
-flask-admin
-flask-sqlalchemy
-opencv-python
-matplotlib
-pyyaml
-flask-migrate
-requests
