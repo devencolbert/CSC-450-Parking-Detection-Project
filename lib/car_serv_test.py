@@ -3,10 +3,10 @@ import json
 import cv2
 import numpy as np
 from img_proc import ImgProcessor
-from storage.database import app
-from storage.database.models import Lot, Spot
+#from storage.database import app
+#from storage.database.models import Lot, Spot
 
-r = requests.get('http://127.0.0.1:8080/get_frame')
+r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': 'id1'})
 data = r.content
 frame = json.loads(data.decode("utf8"))
 frame = np.asarray(frame, np.uint8)

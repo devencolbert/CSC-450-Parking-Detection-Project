@@ -24,6 +24,8 @@ def get_frame():
 		#make a blue frame for camera object
 		frame = np.zeros([480, 640], dtype=np.uint8)
 		frame.fill(100)
+		label = str(cam_id) + ' is OFFLINE'
+		cv2.putText(frame, label, (240, 320), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
 		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame(frame)))
 	else:
 		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame(frame)))
@@ -56,7 +58,7 @@ def init():
 		num += 1
 
 	#STEP-02: Check video feeds
-	'''if len(FEEDS) == 2:
+	if len(FEEDS) == 2:
 		video_feeds = np.hstack((FEEDS['id1'].get_frame(),FEEDS['id2'].get_frame()))
 	else:
 		video_feeds = FEEDS['id1'].get_frame()
@@ -65,7 +67,7 @@ def init():
 		#cv2.imshow("frame", FEEDS['id2'].get_frame())
 		if cv2.waitKey(1) == ord('q'):
 			break
-	cv2.destroyAllWindows()'''
+	cv2.destroyAllWindows()
 
 	#STEP-03: return True/False if setup failed
 	input('Press Enter to continue...')
