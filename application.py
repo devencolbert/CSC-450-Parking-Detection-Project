@@ -9,6 +9,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField
 from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import storage.database.models
 import numpy as np
@@ -17,6 +18,8 @@ import json
 import yaml
 import cv2
 import os
+import time
+import atexit
 
 location = None
 object_id = "id1"
@@ -66,6 +69,18 @@ class LoginForm(FlaskForm):
         query_factory=lambda: Lot.query,
         allow_blank=False
     )
+    
+#   Scheduler Test
+    
+def car_detect():
+    print("STUFF HAPPENS HERE")
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func = car_detect, trigger = "interval", seconds = 10)
+scheduler.start()
+
+atexit.register(lambda: scheduler.shutdown()) # Shutdown scheduler
 
 #   Index Route
 

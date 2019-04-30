@@ -7,7 +7,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'flask', 'flask-admin', 'flask-wtf', 'flask-sqlalchemy', 'opencv-python', 'matplotlib', 'pyyaml', 'requests'
+        'flask', 'flask-admin', 'flask-wtf', 'flask-sqlalchemy', 'opencv-python', 'matplotlib', 'pyyaml', 'requests', 'apscheduler'
     ],
 )
 
