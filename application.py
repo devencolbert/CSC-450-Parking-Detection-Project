@@ -66,6 +66,18 @@ class LoginForm(FlaskForm):
         query_factory=lambda: Lot.query,
         allow_blank=False
     )
+    
+#   Scheduler Test
+    
+def car_detect():
+    print("STUFF HAPPENS HERE")
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func = car_detect, trigger = "interval", seconds = 10)
+scheduler.start()
+
+atexit.register(lambda: scheduler.shutdown()) # Shutdown scheduler
 
 #   Index Route
 
