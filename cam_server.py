@@ -20,10 +20,11 @@ def get_frame():
 	#STEP-2: Pull-norm-package frame
 	frame = FEEDS[cam_id].get_frame()
 	print(frame)
-	if frame is None:
+	if np.shape(frame) == ():
 		#make a blue frame for camera object
-		frame = np.zeros([640, 480], dtype=np.uint8)
-		frame.fill(0)
+		frame = np.zeros([480, 640], dtype=np.uint8)
+		frame.fill(100)
+		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame(frame)))
 	else:
 		frame = FEEDS[cam_id].package((FEEDS[cam_id].norm_frame(frame)))
 	
