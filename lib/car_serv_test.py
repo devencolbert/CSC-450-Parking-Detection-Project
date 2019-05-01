@@ -19,4 +19,3 @@ print(car)
     #stuff = Spot(availability = x, lot_id = 1)
     #app.session.add(x)
     #app.session.commit()
-  

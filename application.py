@@ -6,7 +6,7 @@ from storage.database.models import *
 from lib.cam import Camera
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField
+from wtforms import StringField, SelectField, IntegerField
 from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -64,9 +64,9 @@ admin.add_view(ModelView(Spot, db.session, category="Database"))
 
 class LoginForm(FlaskForm):
     artist1 = StringField('Camera ID', validators=[DataRequired()])
-    #artist2 = SelectField('Location', coerce=int)
+    #artist2 = StringField('Lot ID',validators=[DataRequired()])
     artist2 = QuerySelectField(
-        'Location',
+        'id',
         query_factory=lambda: Lot.query,
         allow_blank=False
     )
@@ -74,28 +74,28 @@ class LoginForm(FlaskForm):
 #   Scheduler Test
     
 def car_detect():
-	r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': object_id})
-	data = r.content
-	frame = json.loads(data.decode("utf8"))
-	frame = np.asarray(frame, np.uint8)
-	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': 'id2'})
+        data = r.content
+        frame = json.loads(data.decode("utf8"))
+        frame = np.asarray(frame, np.uint8)
+        frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
-	car_dect = ImgProcessor()
-	car = car_dect.process_frame(frame)
-	print(car)
-	
-	with application.app_context():
-		db.session.query(Spot.availability).delete()
-		i = 1
-		for x in car:
-			u = Spot(spot_id = i, availability = x, lot_location = object_id)
-			i += 1
-			db.session.add(u)
-			db.session.commit()
-
+        car_dect = ImgProcessor()
+        car = car_dect.process_frame(frame)
+        print(car)
+        with application.app_context():
+            db.session.query(Spot.availability).delete()
+            for x in car:
+                u = Spot(availability = x, lot_location = 1)
+                db.session.add(u)
+                db.session.commit()
+            #with application.app_context():
+                #u = Spot(availability = x)
+                #db.session.add(u)
+                #db.session.commit()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func = car_detect, trigger = "interval", seconds = 10)
+scheduler.add_job(func = car_detect, trigger = "interval", seconds = 25)
 scheduler.start()
 
 atexit.register(lambda: scheduler.shutdown()) # Shutdown scheduler
@@ -111,7 +111,7 @@ def index():
 #   Info Route
 
 @application.route('/info/<location>')
-def info(lot_id):
+def info(location):
     data = db.session.execute("SELECT * FROM Spot WHERE lot_location = :lot_location;", {"lot_location": location}).fetchall()
     return render_template('info.html', data = data)
 

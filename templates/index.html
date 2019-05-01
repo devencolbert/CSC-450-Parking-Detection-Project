@@ -32,11 +32,11 @@
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="http://127.0.0.1:5000">Real Time Parking</a>
+				<a class="navbar-brand" href="/">Real Time Parking</a>
 			</div>
 			  <ul class="nav navbar-nav">
-				<li class="active"><a href="http://127.0.0.1:5000">Home</a></li>
-				<li><a href="/info">Info</a></li>
+				<li class="active"><a href="/">Home</a></li>
+				
 			  </ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="/admin"><span class="glyphicon glyphicon-log-in"></span> Admin Login</a></li>
@@ -59,7 +59,7 @@
 			  <tbody>
 				{% for item in data %}
 				<tr>
-				  <td><a href="/info/{{item[1]}}">{{item[1]}}</a></td>
+				  <td><a href="/info/{{item[0]}}">{{item[1]}}</a></td>
 				  <td>{{item[2]}}</td>
 				  <td>{{item[3]}}</td>
 				  <td>{{item[4]}}</td>
