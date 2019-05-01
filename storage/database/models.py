@@ -6,6 +6,9 @@ class Lot(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     location = db.Column(db.String(64), index=True)
     lot_ident = db.Column(db.Integer, index=True)
+    total_spots = db.Column(db.Integer, index=True)
+    available_spots = db.Column(db.Integer, index=True)
+    percentage = db.Column(db.Integer, index=True)
     
     frames = db.relationship('Frame', backref='Location', lazy='dynamic')
     yamls = db.relationship('Yaml', backref='Location', lazy='dynamic')
@@ -13,7 +16,7 @@ class Lot(db.Model):
     calculations = db.relationship('Calculation', backref='Location', lazy='dynamic')
 
     def __repr__(self):
-        return '<Lot {}>'.format(self.location) 
+        return '<Lot {}>'.format(self.id) 
 
 class Frame(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
@@ -46,9 +49,8 @@ class Calculation(db.Model):
     total_spots = db.Column(db.Integer, index=True)
     available_spots = db.Column(db.Integer, index=True)
     percentage = db.Column(db.Integer, index=True)
-    lot_location = db.Column(db.Integer, db.ForeignKey('lot.id'))
+    #lot_id = db.Column(db.Integer, db.ForeignKey('lot.id'))
+    lot_location = db.Column(db.String, db.ForeignKey('lot.location'))
 
     def __repr__(self):
         return '<Calculations {}>'.format(self.id)
-
-
