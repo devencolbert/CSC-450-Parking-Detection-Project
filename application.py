@@ -74,7 +74,7 @@ class LoginForm(FlaskForm):
 #   Scheduler Test
     
 def car_detect():
-	r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': 'id1'})
+	r = requests.get('http://127.0.0.1:8080/get_frame', headers= {'cam_id': object_id})
 	data = r.content
 	frame = json.loads(data.decode("utf8"))
 	frame = np.asarray(frame, np.uint8)
@@ -83,6 +83,15 @@ def car_detect():
 	car_dect = ImgProcessor()
 	car = car_dect.process_frame(frame)
 	print(car)
+	
+	with application.app_context():
+		db.session.query(Spot.availability).delete()
+		i = 1
+		for x in car:
+			u = Spot(spot_id = i, availability = x, lot_location = object_id)
+			i += 1
+			db.session.add(u)
+			db.session.commit()
 
 
 scheduler = BackgroundScheduler()
@@ -103,7 +112,7 @@ def index():
 
 @application.route('/info/<location>')
 def info(lot_id):
-    lot_location = location
+    data = db.session.execute("SELECT * FROM Spot WHERE lot_location = :lot_location;", {"lot_location": location}).fetchall()
     return render_template('info.html', data = data)
 
 #   Test Config Route

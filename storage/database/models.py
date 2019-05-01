@@ -34,7 +34,7 @@ class Yaml(db.Model):
 class Spot(db.Model): 
     id = db.Column(db.Integer, primary_key=True)  
     spot_id = db.Column(db.Integer, index=True)
-    availability = db.Column(db.Boolean(140), index=True)
+    availability = db.Column(db.String(140), index=True)
     lot_location = db.Column(db.String(64), db.ForeignKey('lot.location'))
 
     def __repr__(self):

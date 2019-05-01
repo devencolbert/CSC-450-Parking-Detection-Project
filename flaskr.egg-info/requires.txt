@@ -1,0 +1,9 @@
+flask
+flask-admin
+flask-wtf
+flask-sqlalchemy
+opencv-python
+matplotlib
+pyyaml
+requests
+apscheduler
