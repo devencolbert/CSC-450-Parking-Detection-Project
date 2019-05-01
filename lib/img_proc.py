@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import random
 import yaml
+import time
 
 class ImgProcessor(object):
 
@@ -10,23 +11,27 @@ class ImgProcessor(object):
 		#setup variable
 		#self.
 		#network
-		self.net = cv2.dnn.readNetFromTensorflow('lib/car_dect/frozen_inference_graph.pb', 'lib/car_dect/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt');
-		self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-		self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+		#self.net = cv2.dnn.readNetFromTensorflow('lib/car_dect/frozen_inference_graph.pb', 'lib/car_dect/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt');
+		#self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+		#self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+		self.cars = 'cars.xml'
+		self.cas = cv2.CascadeClassifier(self.cars)
 		#setup parking spots
-		with open('id1.yml', 'r') as stream:
+		with open('id2.yml', 'r') as stream:
 			self.spots = yaml.load(stream)
+			
 
 	def process_frame(self, frame):
-		cars = self.detect_cars(frame)
+		#cars = self.detect_cars(frame)
 		spots = self.spots
-		available_spots = self.detect_available(cars, spots)
+		available_spots = self.detect_available(spots,frame)
 		return available_spots
 
 		#return available parking spots(results)
 
 	def detect_cars(self, frame):
-		confThreshold = 0.5
+		pass
+		'''confThreshold = 0.5
 		maskThreshold = 0.3
 
 		classesFile = "lib/car_dect/mscoco_labels.names";
@@ -51,7 +56,7 @@ class ImgProcessor(object):
 		boxes, masks = self.net.forward(['detection_out_final', 'detection_masks'])
 		numClasses = masks.shape[1]
 		numDetections = boxes.shape[2]
-		print(numDetections)
+		#print(numDetections)
 		 
 		frameH = frame.shape[0]
 		frameW = frame.shape[1]
@@ -85,7 +90,7 @@ class ImgProcessor(object):
 				coors.append(left)
 				coors.append(bottom)
 				coors.append(right)
-				print(coors)
+				#print(coors)
 			else:
 				# Draw bounding box, colorize and show the mask on the image
 				# Draw a bounding box.
@@ -109,29 +114,108 @@ class ImgProcessor(object):
 				chain_approx_simp = cv2.CHAIN_APPROX_SIMPLE
 				contours, hierarchy = cv2.findContours(mask, retr_tree, chain_approx_simp)
 				cv2.drawContours(frame[top:bottom+1, left:right+1], contours, -1, color, 3, cv2.LINE_8, hierarchy, 100)
-				while True:
-					cv2.imshow('im', frame)
-					if cv2.waitKey(1) == ord('q'):
-						break
-				cv2.destroyAllWindows()
+				#while True:
+					#cv2.imshow('im', frame)
+					#if cv2.waitKey(1) == ord('q'):
+						#break
+				#cv2.destroyAllWindows()
 				coors.append(top)
 				coors.append(left)
 				coors.append(bottom)
 				coors.append(right)
-				print(coors)
+				#print(coors)
 
 		#detect cars
-		return coors
+		return coors'''
 
-	def detect_available(self, cars, spots):
+	def detect_available(self, spots, frame):
 		#For right now this gives an error:  carCoor_x1 = car_coor[index]['coors'][key][0]
 		#TypeError: list indices must be integers or slices, not dict
 		#Spot Coordinates still need to be implemented
 
 		avail = []
+		blurImg = cv2.GaussianBlur(frame.copy(), (5,5), 3)
+		grayImg = cv2.cvtColor(blurImg, cv2.COLOR_BGR2GRAY)
+		
+		parking_contours = []
+		parking_bounding_rects = []
+		parking_mask = []
+		parking_data_motion = []
+		if spots != None:
+			for park in spots:
+				points = np.array(park['points'])
+				rect = cv2.boundingRect(points)
+				points_shifted = points.copy()
+				points_shifted[:,0] = points[:,0] - rect[0] # shift contour to region of interest
+				points_shifted[:,1] = points[:,1] - rect[1]
+				parking_contours.append(points)
+				parking_bounding_rects.append(rect)
+				mask = cv2.drawContours(np.zeros((rect[3], rect[2]), dtype=np.uint8), [points_shifted], contourIdx=-1,
+											color=255, thickness=-1, lineType=cv2.LINE_8)
+				mask = mask==255
+				parking_mask.append(mask)
+				
+		spots_change = 0
+    # detecting cars and vacant spaces
 		for ind, park in enumerate(spots):
 			points = np.array(park['points'])
-			print(points)
+			rect = parking_bounding_rects[ind]
+			roi_gray = grayImg[rect[1]:(rect[1]+rect[3]), rect[0]:(rect[0]+rect[2])] # crop roi for faster calcluation
+
+			laplacian = cv2.Laplacian(roi_gray, cv2.CV_64F)
+			
+			points[:,0] = points[:,0] - rect[0] # shift contour to roi
+			points[:,1] = points[:,1] - rect[1]
+			delta = np.mean(np.abs(laplacian * parking_mask[ind]))
+			
+			pos = time.time()
+			
+			status = delta < 2.2
+			# If detected a change in parking status, save the current time
+			if status != parking_status[ind] and parking_buffer[ind]==None:
+				parking_buffer[ind] = pos
+				
+			# If status is still different than the one saved and counter is open
+			elif status != parking_status[ind] and parking_buffer[ind]!=None:
+				if pos - parking_buffer[ind] > 1:
+					parking_status[ind] = status
+					parking_buffer[ind] = None
+			# If status is still same and counter is open
+			elif status == parking_status[ind] and parking_buffer[ind]!=None:
+				parking_buffer[ind] = None
+			
+			total_spots = len(spots)
+			for ind, park in enumerate(spots):
+				points = np.array(park['points'])
+				if parking_status[ind]:
+					color = (0,255,0)
+					spots_change += 1
+					spot = 'Available'
+					rect = parking_bounding_rects[ind]
+					roi_gray_ov = grayImg[rect[1]:(rect[1] + rect[3]), rect[0]:(rect[0] + rect[2])]  # crop roi for faster calcluation
+					cars = self.cas.detectMultiScale(roi_gray_ov, 1.1, 1)
+					if cars == ():
+						res = False
+					else:
+						res = True
+					if res:
+						parking_data_motion.append(spots[ind])
+						
+						color = (0,0,255)
+				else:
+					color = (0,0,255)
+					spot = 'Unavailable'
+				
+				#cv2.drawContours(line_img, [points], contourIdx=-1,color=color, thickness=2, lineType=cv2.LINE_8)
+				#cv2.drawContours(vpl, [points], contourIdx=-1,color=color, thickness=2, lineType=cv2.LINE_8)
+			avail.append(spots)
+		return avail
+				
+				#moments = cv2.moments(points)
+				#centroid = (int(moments['m10']/moments['m00'])-3, int(moments['m01']/moments['m00'])+3)
+		'''for ind, park in enumerate(spots):
+			points = np.array(park['points'])
+			#print(points)
 			xA = max(cars[1], points[0][0])
 			yA = max(cars[0], points[0][1])
 			xB = min(cars[3], points[3][0])
@@ -142,14 +226,14 @@ class ImgProcessor(object):
 			spotBoxArea = (points[3][0] - points[0][0] + 1) * (points[3][1] - points[0][1] + 1)
 
 			iou = abs(interArea / float(carBoxArea + spotBoxArea - interArea))
-			print(iou)
+			#print(iou)
 			if iou < 1 and iou > 0:
 				avail.append('unavailable')
 			else:
 				avail.append('available')
 		return avail
 
-		'''#for index in range(len(car_coor)):
+		#for index in range(len(car_coor)):
 		#    for key in car_coor[index]:
 		#        print(car_coor[index][key])
 		#Assigning each car coordinate to a variable
