@@ -40,4 +40,3 @@ class Camera(object):
 		opened = self.video.isOpened()
 		return opened
 		
-
