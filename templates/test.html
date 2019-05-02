@@ -3,7 +3,7 @@
 <head>
 <style>
 #canvas {
-    width:380px;
+    width:640px;
     height:auto;
     border: 10px solid transparent;
     margin-left: auto;
@@ -14,7 +14,7 @@
     position: absolute;
 }
 img {
-    max-width: 600px;
+    min-width: 640px;
 }
 h1 {
     text-align: center;
@@ -46,6 +46,7 @@ function msg() {
 </form>
 
 <script>
+
 initDraw(document.getElementById('canvas'));
 function initDraw(canvas) {
     function setMousePosition(e) {
@@ -79,16 +80,17 @@ function initDraw(canvas) {
         if (element !== null) {
             element = null;
             canvas.style.cursor = "default";
-            var coordinate_1 = [mouse.startX-770, mouse.startY-90];
-            var coordinate_2 = [mouse.x-770, mouse.startY-90];
-            var coordinate_3 = [mouse.startX-770, mouse.y-90];
-            var coordinate_4 = [mouse.x-770, mouse.y-90];
+	    var width = window.innerWidth || document.body.clientWidth;
+            var coordinate_1 = [mouse.startX-((width-640)/2), mouse.startY-90];
+            var coordinate_2 = [mouse.x-((width-640)/2), mouse.startY-90];
+            var coordinate_3 = [mouse.startX-((width-640)/2), mouse.y-90];
+            var coordinate_4 = [mouse.x-((width-640)/2), mouse.y-90];
             var coordinate_total = [coordinate_1, coordinate_2, coordinate_3, coordinate_4];
             document.getElementById("demo").innerHTML = coordinate_total;
 	    var javascript_data = JSON.stringify(coordinate_total);
 	    $.ajax({
     		type: "POST",
-    		url: "/configuration/display",
+    		url: "/admin/configuration/display",
     		contentType: "application/json",
     		dataType: "json",
 		data: javascript_data,

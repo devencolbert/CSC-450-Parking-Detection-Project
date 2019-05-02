@@ -60,9 +60,9 @@
 				{% for item in data %}
 				<tr>
 				  <td><a href="/info/{{item[0]}}">{{item[1]}}</a></td>
+				  <td>{{item[4]}}</td>
 				  <td>{{item[2]}}</td>
 				  <td>{{item[3]}}</td>
-				  <td>{{item[4]}}</td>
 				</tr>
 				{% endfor %}
 
@@ -72,6 +72,6 @@
 	<br>
 	<br>
 	<br>
-	<p>This is a web interface for the Real-Time Parking Detection system.</p>
-</body>
+	<CENTER><p>This is a web interface for the Real-Time Parking Detection system. The information was last updated at 
+{{ timestamp }}.</p></CENTER></body>
 </html>
