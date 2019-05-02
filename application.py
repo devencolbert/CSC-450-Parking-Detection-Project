@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from lib.img_proc import ImgProcessor
+from img_proc import ImgProcessor
 from storage.database.models import *
 from lib.cam import Camera
 
@@ -152,7 +152,7 @@ def update_availability():
         pass
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func = update_availability, trigger = "interval", seconds = 10)
+scheduler.add_job(func = update_availability, trigger = "interval", seconds = 30)
 scheduler.start()
 # Shutdown scheduler object when server is shutdown
 atexit.register(lambda: scheduler.shutdown())
