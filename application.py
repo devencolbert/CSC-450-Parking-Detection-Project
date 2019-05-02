@@ -24,7 +24,7 @@ from lib.img_proc import ImgProcessor
 
 location = None
 object_id = "id1"
-inc = 0
+inc = 1
 application = Flask(__name__)
 
 application.config.from_object(__name__)
@@ -95,7 +95,7 @@ def car_detect():
                 #db.session.commit()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func = car_detect, trigger = "interval", seconds = 25)
+scheduler.add_job(func = car_detect, trigger = "interval", seconds = 5)
 scheduler.start()
 
 atexit.register(lambda: scheduler.shutdown()) # Shutdown scheduler
