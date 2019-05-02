@@ -79,10 +79,10 @@ function initDraw(canvas) {
         if (element !== null) {
             element = null;
             canvas.style.cursor = "default";
-            var coordinate_1 = [mouse.startX, mouse.startY];
-            var coordinate_2 = [mouse.x, mouse.startY];
-            var coordinate_3 = [mouse.startX, mouse.y];
-            var coordinate_4 = [mouse.x, mouse.y];
+            var coordinate_1 = [mouse.startX-770, mouse.startY-90];
+            var coordinate_2 = [mouse.x-770, mouse.startY-90];
+            var coordinate_3 = [mouse.startX-770, mouse.y-90];
+            var coordinate_4 = [mouse.x-770, mouse.y-90];
             var coordinate_total = [coordinate_1, coordinate_2, coordinate_3, coordinate_4];
             document.getElementById("demo").innerHTML = coordinate_total;
 	    var javascript_data = JSON.stringify(coordinate_total);

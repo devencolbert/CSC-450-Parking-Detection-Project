@@ -29,11 +29,25 @@ class ImgProcessor(object):
 		kernel_erode = self.set_erode_kernel()
 		kernel_dilate = self.set_dilate_kernel()
 		parking_status, parking_buffer = self.status(spots)
+		fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
 		start = time.time()
 		blurImg = cv2.GaussianBlur(frame.copy(), (5,5), 3)
 		grayImg = cv2.cvtColor(blurImg, cv2.COLOR_BGR2GRAY)
+		line_img = frame.copy()
+		fgmask = fgbg.apply(blurImg)
+		bw = np.uint8(fgmask==255)*255
+		bw = cv2.erode(bw, kernel_erode, iterations=1)
+		bw = cv2.dilate(bw, kernel_dilate, iterations=1)
+
+		(cnts, _) = cv2.findContours(bw.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		# loop over the contours
+		for c in cnts:
+			if cv2.contourArea(c) < 500:
+				continue
+			(x, y, w, h) = cv2.boundingRect(c)
+			cv2.rectangle(line_img, (x, y), (x + w, y + h), (255, 0, 0), 1)
 		available_spots = self.detection(parking_bounding_rects, spots, parking_status,
-		  parking_buffer, grayImg, start, parking_mask, cas)
+		  parking_buffer, grayImg, start, parking_mask, cas, line_img)
 		return available_spots
 
 		#return available parking spots(results)
@@ -79,7 +93,7 @@ class ImgProcessor(object):
 			parking_buffer = [None]*len(spots)
 		return parking_status, parking_buffer;
 		
-	def print_parkIDs(self, park, points, cas, parking_bounding_rects, grayImg, spots, parking_status):
+	def print_parkIDs(self, park, points, cas, parking_bounding_rects, grayImg, spots, parking_status, line_img):
 
 		avail = []
 		spots_change = 0
@@ -90,7 +104,7 @@ class ImgProcessor(object):
 				color = (0,255,0)
 				spots_change += 1
 				spot = 'Available'
-				avail.append(spot)
+				#avail.append(spot)
 				rect = parking_bounding_rects[ind]
 				roi_gray_ov = grayImg[rect[1]:(rect[1] + rect[3]),
 											rect[0]:(rect[0] + rect[2])]  # crop roi for faster calcluation
@@ -101,11 +115,17 @@ class ImgProcessor(object):
 			else:
 					color = (0,0,255)
 					spot = 'Unavailable'
-					avail.append(spot)
+			avail.append(spot)
+			cv2.drawContours(line_img, [points], contourIdx=-1,
+                             color=color, thickness=2, lineType=cv2.LINE_8)
+			while True:
+				cv2.imshow('frame', line_img)
+				if cv2.waitKey(1) == ord('q'):
+					break
 		return avail
 							
 	def detection(self, parking_bounding_rects, spots, parking_status,
-			  parking_buffer, grayImg, start, parking_mask, cas):
+			  parking_buffer, grayImg, start, parking_mask, cas, line_img):
 
 			
 		spots_change = 0
@@ -151,7 +171,7 @@ class ImgProcessor(object):
 
 # changing the color on the basis on status change occured in the above section and putting numbers on areas
 	
-			avail = self.print_parkIDs(park, points, cas, parking_bounding_rects, grayImg, spots, parking_status)
+			avail = self.print_parkIDs(park, points, cas, parking_bounding_rects, grayImg, spots, parking_status, line_img)
 			return avail
 
 	def detect_cars(self, frame):
