@@ -30,7 +30,7 @@ class ImgProcessor(object):
 
         def get_config(self, config):
                 with open('./storage/config/' + config + '.yml', 'r') as stream:
-                        self.spots = yaml.load(stream, Loader=yaml.FullLoader)
+                        self.spots = yaml.load(stream)
                 return self.spots
 
         def detect_cars(self, frame):
