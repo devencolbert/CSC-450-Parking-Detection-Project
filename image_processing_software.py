@@ -11,7 +11,7 @@ from flask import request
 import requests
 from io import BytesIO
 import urllib.request
-#from camera_client import Camera
+from camera_client import Camera
 #import detect_cars.new_segment
 
 
@@ -204,6 +204,8 @@ def detection(parking_bounding_rects, parking_data, parking_status,
         
         points[:,0] = points[:,0] - rect[0] # shift contour to roi
         points[:,1] = points[:,1] - rect[1]
+        print(len(laplacian))
+        print(len(parking_mask[ind]))
         delta = np.mean(np.abs(laplacian * parking_mask[ind]))
         
         pos = time.time()
@@ -226,28 +228,11 @@ def detection(parking_bounding_rects, parking_data, parking_status,
     
         print_parkIDs(park, points, line_img, car_cascade,
                       parking_bounding_rects, grayImg, parking_data, parking_status, vpl)
-
-def requestImage():
-    url = "http://localhost:8000/video_feed"
-    '''pic = requests.get(url)
-    if pic.status_code == 200:
-        p = pic.content
-        p = base64.b64decode(p)
-        cv2.imshow('p', p)
-    #return p
-        with open('image.jpg', 'w') as f:
-            f.write(p)'''
-    r = requests.get(url)
-    print(r.content)
-    with open('image.jpg', 'wb') as f:
-        f.write(r.content)
-    #return r
-        
-    
+  
 def main():
 
     
-    #cap = Camera()
+    cap = Camera()
     frame_pos = 0
     pos = 0.0
     fn_yaml = "parking_spots.yml"
@@ -276,7 +261,7 @@ def main():
         #nparr = np.fromstring(data, np.uint8)
         #simg = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         #d = json.loads(data.headers)
-        first_frame = requestImage()
+        first_frame = cap.get_frame()
         frame_pos += 1
         
         #decimg = cv2.imdecode(first_frame,0)

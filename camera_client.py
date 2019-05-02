@@ -7,20 +7,19 @@ import threading
 
 class Camera(object):
     def __init__(self):
-        #self.video = cv2.VideoCapture(0)
+        self.video = cv2.VideoCapture(0)
         #self.video1 = cv2.VideoCapture(1)
         #self.video = cv2.VideoCapture('output.mp4')
-        self.video = cv2.VideoCapture('test.jpg')
+        #self.video = cv2.VideoCapture('test.jpg')
 
     def __del__(self):
         self.video.release()
-        self.video1.release()
 
     def get_frame(self):
             ret, frame = self.video.read()
             #ret2, frame2 = self.video1.read()
             r, jpg = cv2.imencode('.jpg', frame)
-            return jpg.tostring()
+            return frame
         #return frame
 
     def cam_open(self):
