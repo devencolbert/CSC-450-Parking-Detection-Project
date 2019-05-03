@@ -82,7 +82,8 @@ def postprocess(boxes, masks):
 	 
 	frameH = frame2.shape[0]
 	frameW = frame2.shape[1]
-	 
+	if os.path.exists('coors.yml'):
+		os.remove('coors.yml')
 	for i in range(numDetections):
 		box = boxes[0, 0, i]
 		mask = masks[i]
@@ -116,6 +117,7 @@ def postprocess(boxes, masks):
 			info['carId'] = carId
 			info['coors'] = [corner_1, corner_2]
 			data.append(info)
+			
 			with open('coors.yml','a') as file:
 				yaml.dump(data, file)
 
