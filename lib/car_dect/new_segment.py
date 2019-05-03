@@ -68,7 +68,7 @@ def drawBox(frame2, classId, conf, left, top, right, bottom, classMask):
 	mask = mask.astype(np.uint8)
 	retr_tree = cv.RETR_TREE
 	chain_approx_simp = cv.CHAIN_APPROX_SIMPLE
-	contours, hierarchy = cv.findContours(mask, retr_tree, chain_approx_simp)
+	im2, contours, hierarchy = cv.findContours(mask, retr_tree, chain_approx_simp)
 	cv.drawContours(frame2[top:bottom+1, left:right+1], contours, -1, color, 3, cv.LINE_8, hierarchy, 100)
 
 # For each frame, extract the bounding box and mask for each detected object

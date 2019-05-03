@@ -152,7 +152,7 @@ def update_availability():
         pass
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func = update_availability, trigger = "interval", seconds = 30)
+scheduler.add_job(func = update_availability, trigger = "interval", seconds = 10)
 scheduler.start()
 # Shutdown scheduler object when server is shutdown
 atexit.register(lambda: scheduler.shutdown())

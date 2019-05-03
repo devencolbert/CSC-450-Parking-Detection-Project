@@ -26,6 +26,7 @@ class ImgProcessor(object):
 		#coors = self.cars
 		#cars = self.detect_cars(frame, coors)
 		#spots = self.spots
+		config = 'id2'
 		spots = self.get_config(config)
 		available_spots = self.detect_available(frame, spots)
 		return available_spots
@@ -125,7 +126,7 @@ class ImgProcessor(object):
 				mask = mask.astype(np.uint8)
 				retr_tree = cv2.RETR_TREE
 				chain_approx_simp = cv2.CHAIN_APPROX_SIMPLE
-				contours, hierarchy = cv2.findContours(mask, retr_tree, chain_approx_simp)
+				im2, contours, hierarchy = cv2.findContours(mask, retr_tree, chain_approx_simp)
 				cv2.drawContours(frame[top:bottom+1, left:right+1], contours, -1, color, 3, cv2.LINE_8, hierarchy, 100)
 				
 				coors.append(top)
@@ -139,7 +140,7 @@ class ImgProcessor(object):
 				if cv2.waitKey(1) == ord('q'):
 					break
 				cv2.destroyAllWindows()'''
-		return coors
+			return coors
 
 		#detect cars
 		
@@ -185,6 +186,7 @@ class ImgProcessor(object):
 				avail.append('Unavailable')
 			else:
 				avail.append('Available')
+		print(avail)
 		return avail, lot_id
 
 	def format_spots(self, avail):
