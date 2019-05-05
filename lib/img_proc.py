@@ -17,9 +17,9 @@ class ImgProcessor(object):
 		self.cas = cv2.CascadeClassifier(self.cars)
 		#setup parking spots
 
-	def process_frame(self, frame,):
+	def process_frame(self, frame, config):
 		#cars = self.detect_cars(frame)
-		spots = self.get_config()
+		spots = self.get_config(config)
 		cas = self.cas
 		parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = self.get_parking_info(spots)
 		kernel_erode = self.set_erode_kernel()
@@ -35,7 +35,7 @@ class ImgProcessor(object):
 		bw = cv2.erode(bw, kernel_erode, iterations=1)
 		bw = cv2.dilate(bw, kernel_dilate, iterations=1)
 
-		(im2, cnts, _) = cv2.findContours(bw.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		(cnts, _) = cv2.findContours(bw.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		# loop over the contours
 		for c in cnts:
 			if cv2.contourArea(c) < 500:
@@ -48,7 +48,7 @@ class ImgProcessor(object):
 
 		#return available parking spots(results)
 		
-	def get_config(self):
+	def get_config(self, config):
 		with open('./storage/config/' 'id2.yml', 'r') as stream:
 			self.spots = yaml.load(stream)
 		return self.spots
