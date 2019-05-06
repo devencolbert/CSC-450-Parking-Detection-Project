@@ -8,8 +8,7 @@ from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from apscheduler.schedulers.background import BackgroundScheduler
 
-#from lib.img_proc import ImgProcessor
-from lib.img import ImgProcessor
+from lib.img_proc import ImgProcessor
 from storage.database.models import *
 from lib.cam import Camera
 

@@ -13,7 +13,11 @@ class ImgProcessor(object):
 		
 	def process_frame(self):
 		car = self.car
-		parking_data = self.parking_datasets(".\storage\config\id1.yml")
+		if os.path.exists(".\storage\config\id1.yml"):
+			parking_data = self.parking_datasets(".\storage\config\id1.yml")
+		else:
+			import lib.datasets
+			parking_data = self.parking_datasets("storage\config\id1.yml")
 		parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = self.get_parking_info(parking_data)
 		kernel_erode = self.set_erode_kernel()
 		kernel_dilate = self.set_dilate_kernel()
@@ -27,18 +31,14 @@ class ImgProcessor(object):
 			kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data):
 
 		
-		#cap = Camera()
 		avail = []
 		frame_pos = 0
 		pos = 0.0
-		#fn_yaml = "storage\config\id1.yml"
 
 		
 		
 
-		#cascade_src = 'cars.xml'
 		car_cascade = cv2.CascadeClassifier(car)
-		#car_coor = detect_cars()
 
 		fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
 		
@@ -50,10 +50,8 @@ class ImgProcessor(object):
 			frame = np.asarray(frame, np.uint8)
 			frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 			first_frame = frame
-			#first_frame = cap.get_frame()
 			frame_pos += 1
 			
-			#decimg = cv2.imdecode(first_frame,0)
 			# Smooth out the image, then convert to grayscale
 			blurImg = cv2.GaussianBlur(frame.copy(), (5,5), 3)
 			grayImg = cv2.cvtColor(blurImg, cv2.COLOR_BGR2GRAY)
@@ -84,24 +82,16 @@ class ImgProcessor(object):
 		#Use the classifier to detect cars and help determine which parking spaces are available and unavailable
 			avail = self.detection(parking_bounding_rects, parking_data, parking_status,
 					  parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl)
-			#print(avail)
 
 
 			
 
 			# Display video
 			cv2.imshow('frame', line_img)
-			# cv2.imshow('background mask', bw)
 			
 			k = cv2.waitKey(1)
 			if k == ord('q'):
 				break
-			#elif k == ord('j'):
-			#    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos+1000) # jump 1000 frames
-			#elif k == ord('u'):
-			#    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos + 500)  # jump 500 frames
-			#if cv2.waitKey(33) == 27:
-			#    break
 
 		cv2.waitKey(0)
 		cv2.destroyAllWindows()
@@ -157,13 +147,13 @@ class ImgProcessor(object):
 		kernel_dilate = cv2.getStructuringElement(cv2.MORPH_RECT,(5,19))
 		return kernel_dilate
 
-	'''def status(self, parking_data):
-		if parking_data != None:
-			parking_status = [False]*len(parking_data)
-			parking_buffer = [None]*len(parking_data)
-		return parking_status, parking_buffer;'''
-
-
+''' ------------------------------------------------------------------------
+	Parking Status Lines
+	
+	This function will take the results from the detection function and draw the 
+	lines of available parking spaces in green and the unavailable parking spaces
+	in red. Each spot will be labeled with an id in the order that they were drawn by the admin.
+	------------------------------------------------------------------------ ''' 
 	def print_parkIDs(self, park, points, line_img, car_cascade,
 					  parking_bounding_rects, grayImg, parking_data, parking_status, vpl):
 
@@ -199,7 +189,19 @@ class ImgProcessor(object):
 								 color=color, thickness=2, lineType=cv2.LINE_8)
 			
 			moments = cv2.moments(points)
-			
+			centroid = (int(moments['m10']/moments['m00'])-3, int(moments['m01']/moments['m00'])+3)
+			# putting numbers on marked regions
+			cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(line_img, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+
+			cv2.putText(vpl, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(vpl, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
+			cv2.putText(vpl, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
 		
 			
@@ -221,10 +223,17 @@ class ImgProcessor(object):
 		return avail
 
 
+''' ------------------------------------------------------------------------
+	Parking Spot Detection
+	
+	The parking spots will be detected as a available or unavailable by a boolean
+	varaiable that will either be true or false. The results of each detection will be
+	sent to the Parking Status Lines Function to be outlined in either red or green.
+	------------------------------------------------------------------------ ''' 
+
 	def detection(self, parking_bounding_rects, parking_data, parking_status,
 				  parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl):
 
-		spots_change = 0
 		avail = []
 
 		# detecting cars and vacant spaces
