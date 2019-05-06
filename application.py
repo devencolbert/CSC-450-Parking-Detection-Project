@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from apscheduler.schedulers.background import BackgroundScheduler
 
-#from img_proc import ImgProcessor
+#from lib.img_proc import ImgProcessor
 from lib.img import ImgProcessor
 from storage.database.models import *
 from lib.cam import Camera
@@ -135,6 +135,7 @@ def update_availability():
 	timestamp = datetime.datetime.now().time()
 	detection_process = ImgProcessor()
 	availability_information = detection_process.process_frame()
+	#availability_information = detection_process.process_frame()
 	database_import(availability_information, 1)
 	'''configuration_path = application.root_path + "/storage/config"
 	if os.listdir(application.root_path + "/storage/config"):

@@ -81,10 +81,10 @@ function initDraw(canvas) {
             element = null;
             canvas.style.cursor = "default";
 	    var width = window.innerWidth || document.body.clientWidth;
-            var coordinate_1 = [mouse.startX-((width-384)/2), mouse.startY-90];
-            var coordinate_2 = [mouse.x-((width-384)/2), mouse.startY-90];
-            var coordinate_3 = [mouse.startX-((width-384)/2), mouse.y-90];
-            var coordinate_4 = [mouse.x-((width-384)/2), mouse.y-90];
+            var coordinate_3 = [mouse.startX-((width-384)/2), mouse.startY-90];
+            var coordinate_4 = [mouse.x-((width-384)/2), mouse.startY-90];
+            var coordinate_1 = [mouse.startX-((width-384)/2), mouse.y-90];
+            var coordinate_2 = [mouse.x-((width-384)/2), mouse.y-90];
             var coordinate_total = [coordinate_1, coordinate_2, coordinate_3, coordinate_4];
             document.getElementById("demo").innerHTML = coordinate_total;
 	    var javascript_data = JSON.stringify(coordinate_total);

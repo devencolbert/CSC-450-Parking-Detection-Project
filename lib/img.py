@@ -13,10 +13,10 @@ class ImgProcessor(object):
 		
 	def process_frame(self):
 		car = self.car
-		if os.path.exists("storage\config\id1.yml"):
-			parking_data = self.parking_datasets("storage\config\id1.yml")
+		if os.path.exists(".\storage\config\id1.yml"):
+			parking_data = self.parking_datasets(".\storage\config\id1.yml")
 		else:
-			import datasets
+			import lib.datasets
 			parking_data = self.parking_datasets("storage\config\id1.yml")
 		parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = self.get_parking_info(parking_data)
 		kernel_erode = self.set_erode_kernel()
