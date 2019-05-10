@@ -1,17 +1,58 @@
 {% extends 'admin/master.html' %}
+{% block head %}
+<style>
+img {
+  max_width: 100px;
+}
+.row {
+  text-align:center;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 60px 150px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 20px 2px;
+  cursor: pointer;
+        -webkit-transition: all ease-in 250ms;
+        -moz-transition: all ease-in 250ms;
+        -o-transition: all ease-in 250ms;
+        -ms-transition: all ease-in 250ms;
+}
+
+.button:nth-child(2) {
+  background-color: #0000ff;
+border: none;
+  color: white;
+  padding: 60px 150px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 20px 2px;
+  cursor: pointer;
+        -webkit-transition: all ease-in 250ms;
+        -moz-transition: all ease-in 250ms;
+        -o-transition: all ease-in 250ms;
+        -ms-transition: all ease-in 250ms;
+
+.button:hover {
+  background-color: #ffffff;
+}
+</style>
+{% endblock head %}
 {% block body %}
 {{ super() }}
 <div class="row">
-    <h1>Flask-Admin example</h1>
-    <p class="lead">
-        Customize the layout
-    </p>
-    <p>
-        This example shows how you can customize the look & feel of the admin interface.
-    </p>
-    <p>
-        This is done by overriding some of the built-in templates.
-    </p>
+    <a href='/admin'><button class="button button1"><img src='https://i.imgur.com/SrzOyLw.png'><br><br>Home</button></a>
+    <a href='/admin/configuration'><button class="button button1"><img src='https://i.imgur.com/1kBO9YH.png'><br><br>Configure Lot</button></a>
+    <a href='/admin/lot/'><button class="button button2"><img src='https://i.imgur.com/aYFfB9y.png'><br><br>Database</button></a>
+<br>
     <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
 </div>
 {% endblock body %}

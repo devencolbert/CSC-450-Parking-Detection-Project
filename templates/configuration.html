@@ -1,18 +1,38 @@
 {% extends 'admin/master.html' %}
+{% block head %}
+<style>
+<link rel="stylesheet" media="screen" href="static/bootstrap.min.css">
+<link rel="stylesheet" href="static/bootstrap-theme.min.css">
+</style>
+<style>
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+</style>
+{% endblock head %}
 {% block body %}
 {{ super() }}
-<h1>View Configuration Form</h1>
+<h1>Lot Configuration</h1>
+<p>Please enter the ID and source location of the video feed. If no lots have been created, please select the "Create New Lot" button.</p>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
         <p>
 	    {{ form.camera_id.label }}<br>
-            {{ form.camera_id }}
+            {{ form.camera_id(class_="form-control") }}
         </p>
         <p>
 	    {{ form.lot_information.label }}<br>
-            {{ form.lot_information }}<form>
-  <input type="button" value="Create New Lot" onclick="msg()">
+            {{ form.lot_information(class_="form-control") }}<form>
+<br>
+  <input type="button" class="button" value="Create New Lot" onclick="msg()">
 </form>
 
 <script>
@@ -21,5 +41,4 @@ function msg() {
 }
 </script>
         </p>
-<p>{{ form.submit() }}</p></form>
 {% endblock body %}

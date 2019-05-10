@@ -5,7 +5,6 @@ import os.path
 import time
 import json
 import requests
-import time
 
 class ImgProcessor(object):
 
@@ -14,41 +13,44 @@ class ImgProcessor(object):
                 
         def process_frame(self, fname, ip_address):
                 car = self.car
-                #if os.path.exists(".\storage\config\id1.yml"):
-                #if os.path.exists(".\\storage\\config\\" + fname):
-                #parking_data = self.parking_datasets(".\storage\config\id1.yml")
+                
+                # Get information from YML file
+                # Convert information into parking space data
                 parking_data = self.parking_datasets(".\\storage\\config\\" + fname)
-                #else:
-                        #import lib.datasets
-                        #parking_data = self.parking_datasets("storage\config\id1.yml")
                 parking_contours, parking_bounding_rects, parking_mask, parking_data_motion = self.get_parking_info(parking_data)
                 kernel_erode = self.set_erode_kernel()
                 kernel_dilate = self.set_dilate_kernel()
+
+                # Update parking space status
                 parking_status = [False]*len(parking_data)
                 parking_buffer = [None]*len(parking_data)
                 available_spots = self.main(car, parking_contours, parking_bounding_rects, parking_mask, parking_data_motion,
                                                                         kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname, ip_address)
-                #print(available_spots)
+                # Return parking space coordinates and lot ID
                 return available_spots[0], available_spots[1]
                 
         def main(self, car, parking_contours, parking_bounding_rects, parking_mask, parking_data_motion,
                         kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname, ip_address):
 
-                
+                # Variable declarations
                 avail = []
                 frame_pos = 0
                 pos = 0.0
-                fname = fname[:-4]
-                
-                
 
+                # Get camera ID from filename
+                fname = fname[:-4]
                 car_cascade = cv2.CascadeClassifier(car)
 
-                fgbg = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=16, detectShadows=True)
+                fgbg = cv2.createBackgroundSubtractorMOG2(history = 300, varThreshold = 16, detectShadows = True)
                 timeout = time.time() + 5
+
+                #    Retrieve updated parking availability in 5 seconds intervals
+
                 while True:
                         start = time.time()
-                        r = requests.get('http://' + ip_address + ':8080/get_frame', headers= {'cam_id': fname})
+
+                        # Retrieve frame from cam server based on IP address and camera ID
+                        r = requests.get('http://' + ip_address + ':8080/get_frame', headers = {'cam_id': fname})
                         data = r.content
                         frame = json.loads(data.decode("utf8"))
                         frame = np.asarray(frame, np.uint8)
@@ -62,13 +64,10 @@ class ImgProcessor(object):
                         line_img = frame.copy()
                         vpl = np.copy(line_img) * 0 #Virtual Parking Lot
 
-                        # Drawing the Overlay. Text overlay at the left corner of screen
+                        # Drawing the overlay. Text overlay at the left corner of screen
                         str_on_frame = "%d" % (frame_pos)
                         cv2.putText(line_img, str_on_frame, (5,30), cv2.FONT_HERSHEY_SIMPLEX,
                                                         0.8, (0,255,255), 2, cv2.LINE_AA)
-
-                        
-
 
                         fgmask = fgbg.apply(blurImg)
                         bw = np.uint8(fgmask==255)*255
@@ -76,51 +75,47 @@ class ImgProcessor(object):
                         bw = cv2.dilate(bw, kernel_dilate, iterations=1)
 
                         (cnts, _) = cv2.findContours(bw.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                        # loop over the contours
+                        
+                        # Loop over the contours
                         for c in cnts:
                                 if cv2.contourArea(c) < 500:
                                         continue
                                 (x, y, w, h) = cv2.boundingRect(c)
                                 cv2.rectangle(line_img, (x, y), (x + w, y + h), (255, 0, 0), 1)
 
-                #Use the classifier to detect cars and help determine which parking spaces are available and unavailable
+                        # Use the classifier to detect cars
+                        # Determine which parking spaces are available and unavailable
                         avail = self.detection(parking_bounding_rects, parking_data, parking_status,
                                           parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl)
 
-
-                        
-
-                        # Display video
-                        #cv2.imshow('frame', line_img)
-                        
-                        #k = cv2.waitKey(1)
+                        # Break detection loop after 5 seconds
                         if time.time() > timeout:
-                        #if k == ord('q'):
                                 break
 
-                #cv2.waitKey(0)
-                #cv2.destroyAllWindows()
                 return avail[0], avail[1]
         
         def run_classifier(self, img, id, car_cascade):
+                # Determine if object within view is a vehicle
                 cars = car_cascade.detectMultiScale(img, 1.1, 1)
                 if cars == ():
                         return False
                 else:
                         return True
 
-
         def parking_datasets(self, fn_yaml):
+                # Open YML file with read-only access
                 with open(fn_yaml, 'r') as stream:
                         parking_data = yaml.load(stream)
                 return parking_data
 
         def yaml_loader(self, file_path):
+                # Load data from YML file
                 with open(file_path, "r") as file_descr:
                         data = yaml.load(file_descr)
                         return data
 
         def yaml_dump(self,file_path, data):
+                # Insert data into YML file
                 with open(file_path, "a") as file_descr:
                         yaml.dump(data, file_descr)
                         
@@ -154,7 +149,6 @@ class ImgProcessor(object):
 
 
         def print_parkIDs(self, park, points, line_img, car_cascade, parking_bounding_rects, grayImg, parking_data, parking_status, vpl):
-
                 spots_change = 0
                 total_spots = len(parking_data)
                 avail = []
@@ -174,7 +168,6 @@ class ImgProcessor(object):
                                         res = True
                                 if res:
                                         parking_data_motion.append(parking_data[ind])
-                                        
                                         color = (0,0,255)
                         else:
                                 color = (0,0,255)
@@ -188,7 +181,7 @@ class ImgProcessor(object):
                         
                         moments = cv2.moments(points)
                         centroid = (int(moments['m10']/moments['m00'])-3, int(moments['m01']/moments['m00'])+3)
-                        # putting numbers on marked regions
+                        # Putting numbers on marked regions
                         cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
                         cv2.putText(line_img, str(park['id']), (centroid[0]-1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
                         cv2.putText(line_img, str(park['id']), (centroid[0]+1, centroid[1]-1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
@@ -201,11 +194,7 @@ class ImgProcessor(object):
                         cv2.putText(vpl, str(park['id']), (centroid[0]-1, centroid[1]+1), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,255,255), 1, cv2.LINE_AA)
                         cv2.putText(vpl, str(park['id']), centroid, cv2.FONT_HERSHEY_DUPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
-                
-                        
-                
-
-                #Display number of available parking spaces on video for each frame change.
+                # Display number of available parking spaces on video for each frame change.
                 spots_on_frame = "%d/%d" % (spots_change, total_spots)
                 cv2.putText(line_img, spots_on_frame  + ' spaces are available', (6,61), cv2.FONT_HERSHEY_COMPLEX,
                                                         0.7, (255,255,255), 2, cv2.LINE_AA)
@@ -222,21 +211,17 @@ class ImgProcessor(object):
 
 
         def detection(self, parking_bounding_rects, parking_data, parking_status, parking_buffer, grayImg, start, parking_mask, line_img, car_cascade, vpl):
-
                 avail = []
 
-                # detecting cars and vacant spaces
-                #print(parking_data['points'])
+                # Detecting cars and vacant spaces
                 for ind, park in enumerate(parking_data):
                         points = np.array(park['points'])
-                        #print(points)
                         rect = parking_bounding_rects[ind]
-
-                        roi_gray = grayImg[rect[1]:(rect[1]+rect[3]), rect[0]:(rect[0]+rect[2])] # crop roi for faster calcluation
-
+                        # Crop roi for faster calcluation
+                        roi_gray = grayImg[rect[1]:(rect[1]+rect[3]), rect[0]:(rect[0]+rect[2])]
                         laplacian = cv2.Laplacian(roi_gray, cv2.CV_64F)
-                        
-                        points[:,0] = points[:,0] - rect[0] # shift contour to roi
+                        # Shift contour to roi
+                        points[:,0] = points[:,0] - rect[0]
                         points[:,1] = points[:,1] - rect[1]
                         delta = np.mean(np.abs(laplacian * parking_mask[ind]))
                         
@@ -256,12 +241,9 @@ class ImgProcessor(object):
                         elif status == parking_status[ind] and parking_buffer[ind]!=None:
                                 parking_buffer[ind] = None
 
-        # changing the color on the basis on status change occured in the above section and putting numbers on areas
+                        # Changing the color on the basis on status change occured in the above section
+                        # Put numbers on areas
                         lot_id = park['lot']
-                        #print(lot_id)
                         avail = self.print_parkIDs(park, points, line_img, car_cascade,
                                                   parking_bounding_rects, grayImg, parking_data, parking_status, vpl)
-                #print(type(lot_id))
                 return avail, lot_id
-          
-        

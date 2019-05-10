@@ -15,7 +15,8 @@ class Lot(db.Model):
         return '{}'.format(self.location) 
 
 class Spot(db.Model): 
-    id = db.Column(db.Integer, primary_key=True)  
+    id = db.Column(db.Integer, primary_key=True)
+    spot_id = db.Column(db.Integer, index=True)
     availability = db.Column(db.String(64), index=True)
     lot_location = db.Column(db.Integer, db.ForeignKey('lot.id'))
 

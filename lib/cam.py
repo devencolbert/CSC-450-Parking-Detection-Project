@@ -7,8 +7,12 @@ class Camera(object):
 	def __init__(self, mode, addr, id):
 		self.id = id
 		self.video = None
+
+		# Check if feed is from file or live
+		# Verify that input is a string
 		if(mode == "file" and type(addr) == type("hi")):
 			self.video = cv2.VideoCapture(addr)
+		# Verify that input is an integer
 		elif(mode == "live" and type(addr) == type(0)):
 			self.video = cv2.VideoCapture(addr)
 		else:
@@ -20,6 +24,7 @@ class Camera(object):
 	def get_cam_id(self):
 		return self.id
 		
+        # Read frame from camera feed
 	def get_frame(self):
 		ret, frame = self.video.read()
 		if(ret == True):
@@ -27,17 +32,18 @@ class Camera(object):
 		else:
 			return None
 
-	#Normalizing image to be 0.6 of the original width and height
+	# Normalizing image to be 0.6 of the original width and height
 	def norm_frame(self, frame):
 		frame = cv2.resize(frame, None, fx=0.6, fy=0.6)
 		return frame
 
-	#Encoding frame from OpenCV format to JPEG compression format
+	# Encoding frame from OpenCV format to JPEG compression format
 	def package(self, frame):
 		frame = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])[1].tolist()
 		frame = json.dumps(frame)
 		return frame
-	
+
+	# Start camera feed
 	def cam_open(self):
 		opened = self.video.isOpened()
 		return opened

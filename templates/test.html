@@ -22,28 +22,47 @@ h1 {
 
 #demo {
 text-align: center;
+width: 400px;
+background: #eee;
+padding: 10px;
+margin: auto auto;
+}
+
+#wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
 
-<h1>Lot Configuration</h1>
+<h1>Parking Space Configuration</h1>
 <div id="canvas">
 <img id="bg" src="{{ url_for('get_frame') }}">
 </div>
-<p id="demo"></p>
+<div id ="wrapper"><p id="demo"></p><br><br>
 <form>
-  <input type="button" value="Submit" onclick="msg()">
-</form>
+  <input type="button" class="button" value="Submit Configuration" onclick="msg()">
+</form></div>
 
 <script>
 function msg() {
   alert("Configuration submitted!");
-  window.location.href = '/admin';
+  window.location.href = '/admin/configuration';
 }
 </script>
-</form>
 
 <script>
 
