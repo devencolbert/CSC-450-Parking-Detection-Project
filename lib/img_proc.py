@@ -48,7 +48,7 @@ class ImgProcessor(object):
                 timeout = time.time() + 5
                 while True:
                         start = time.time()
-                        r = requests.get(''http://' + ip_address + '/get_frame', headers= {'cam_id': fname})
+                        r = requests.get('http://' + ip_address + '/get_frame', headers= {'cam_id': fname})
                         data = r.content
                         frame = json.loads(data.decode("utf8"))
                         frame = np.asarray(frame, np.uint8)
