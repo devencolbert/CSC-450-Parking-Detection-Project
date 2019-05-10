@@ -26,11 +26,13 @@ class Camera(object):
 			return frame
 		else:
 			return None
-	
+
+	#Normalizing image to be 0.6 of the original width and height
 	def norm_frame(self, frame):
 		frame = cv2.resize(frame, None, fx=0.6, fy=0.6)
 		return frame
 
+	#Encoding frame from OpenCV format to JPEG compression format
 	def package(self, frame):
 		frame = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])[1].tolist()
 		frame = json.dumps(frame)
@@ -40,4 +42,3 @@ class Camera(object):
 		opened = self.video.isOpened()
 		return opened
 		
-
