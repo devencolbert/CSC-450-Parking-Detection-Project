@@ -132,7 +132,7 @@ def database_import(avail_list, lot_id):
 
 def update_availability():
 	# Global variables [TODO: REMOVE IF POSSIBLE]
-	global timestamp
+	global timestamp, ip_address
 	
 	# Update scheduler timestamp
 	timestamp = datetime.datetime.now().time()
@@ -155,7 +155,7 @@ def update_availability():
 			
 			# Process frame and return availability information as list
 			detection_process = ImgProcessor()
-			availability_information = detection_process.process_frame(x)
+			availability_information = detection_process.process_frame(x, ip_address)
 			database_import(availability_information[0], availability_information[1])
 	else:
 		pass
@@ -199,9 +199,10 @@ def info(location):
 
 @application.route('/get_frame', methods=['GET'])
 def get_frame():
+	global ip_address
 	# Retrieve frame object via object_id variable
 	# Encode frame and return it
-	r = requests.get('http://' + ip_address + '/get_frame', headers = {"cam_id": object_id}).content
+	r = requests.get('http://' + ip_address + ':8080/get_frame', headers = {"cam_id": object_id}).content
 	frame = json.loads(r)
 	frame = np.asarray(frame, np.uint8)
 	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)

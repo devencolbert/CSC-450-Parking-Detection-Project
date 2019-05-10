@@ -12,7 +12,7 @@ class ImgProcessor(object):
         def __init__(self):
                 self.car = 'storage\car.xml'
                 
-        def process_frame(self, fname):
+        def process_frame(self, fname, ip_address):
                 car = self.car
                 #if os.path.exists(".\storage\config\id1.yml"):
                 #if os.path.exists(".\\storage\\config\\" + fname):
@@ -27,12 +27,12 @@ class ImgProcessor(object):
                 parking_status = [False]*len(parking_data)
                 parking_buffer = [None]*len(parking_data)
                 available_spots = self.main(car, parking_contours, parking_bounding_rects, parking_mask, parking_data_motion,
-                                                                        kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname)
+                                                                        kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname, ip_address)
                 #print(available_spots)
                 return available_spots[0], available_spots[1]
                 
         def main(self, car, parking_contours, parking_bounding_rects, parking_mask, parking_data_motion,
-                        kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname):
+                        kernel_erode, kernel_dilate, parking_status, parking_buffer, parking_data, fname, ip_address):
 
                 
                 avail = []
@@ -48,7 +48,7 @@ class ImgProcessor(object):
                 timeout = time.time() + 5
                 while True:
                         start = time.time()
-                        r = requests.get('http://' + ip_address + '/get_frame', headers= {'cam_id': fname})
+                        r = requests.get('http://' + ip_address + ':8080/get_frame', headers= {'cam_id': fname})
                         data = r.content
                         frame = json.loads(data.decode("utf8"))
                         frame = np.asarray(frame, np.uint8)
