@@ -11,6 +11,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from lib.img_proc import ImgProcessor
 from storage.database.models import *
 from lib.cam import Camera
+from os import listdir
+from os.path import isfile, join
 
 import storage.database.models
 import numpy as np
@@ -24,9 +26,11 @@ import os, os.path
 
 #   Global Variables [TODO: REMOVE IF POSSIBLE]
 
+id_increment = 1
 object_id = None
 timestamp = datetime.datetime.now().time() 
 location = None
+ip_address = ""
 
 #   Flask server initialization
 #   Flask configuration handling
@@ -132,28 +136,29 @@ def update_availability():
 	
 	# Update scheduler timestamp
 	timestamp = datetime.datetime.now().time()
-	detection_process = ImgProcessor()
-	availability_information = detection_process.process_frame()
+	#detection_process = ImgProcessor()
 	#availability_information = detection_process.process_frame()
-	database_import(availability_information, 1)
-	'''configuration_path = application.root_path + "/storage/config"
+	#availability_information = detection_process.process_frame()
+	#database_import(availability_information, 1)
+	configuration_path = application.root_path + "/storage/config"
+	config_filenames = [f for f in listdir(configuration_path) if isfile(join(configuration_path, f))]
 	if os.listdir(application.root_path + "/storage/config"):
 		file_num = len([f for f in os.listdir(configuration_path)if os.path.isfile(os.path.join(configuration_path, f))])
-		for x in range(file_num):
+		for x in config_filenames:
 			# Retrive frame from video stream via ID
-			camera_id = 'id' + str(x+1)
-			r = requests.get('http://127.0.0.1:8080/get_frame', headers = {'cam_id': 'id1'})
-			data = r.content
-			frame = json.loads(data.decode("utf8"))
-			frame = np.asarray(frame, np.uint8)
-			frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+			#camera_id = x[:-4]
+			#r = requests.get('http://127.0.0.1:8080/get_frame', headers = {'cam_id': camera_id})
+			#data = r.content
+			#frame = json.loads(data.decode("utf8"))
+			#frame = np.asarray(frame, np.uint8)
+			#frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 			
 			# Process frame and return availability information as list
 			detection_process = ImgProcessor()
-			availability_information = detection_process.process_frame()
-			database_import(availability_information[0], 0)
+			availability_information = detection_process.process_frame(x)
+			database_import(availability_information[0], availability_information[1])
 	else:
-		pass'''
+		pass
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func = update_availability, trigger = "interval", seconds = 10)
@@ -196,7 +201,7 @@ def info(location):
 def get_frame():
 	# Retrieve frame object via object_id variable
 	# Encode frame and return it
-	r = requests.get('http://127.0.0.1:8080/get_frame', headers = {"cam_id": object_id}).content
+	r = requests.get('http://' + ip_address + '/get_frame', headers = {"cam_id": object_id}).content
 	frame = json.loads(r)
 	frame = np.asarray(frame, np.uint8)
 	frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
@@ -208,10 +213,10 @@ def get_frame():
 @application.route('/admin/configuration/display', methods = ['GET', 'POST'])
 def display():
 	# Global variables [TODO: REMOVE IF POSSIBLE]
-	global location
+	global location, id_increment
 
-	id_increment = 0
-	config_information = {'id': 0, 'lot': None, 'points': []}
+	#id_increment = 1
+	config_information = {'id': 1, 'lot': 0, 'points': []}
 	arr = []
 	# Get data from Javascript function
 	# If data doesn't equal None [boundary box has been drawn],
@@ -227,8 +232,13 @@ def display():
 		with open('./storage/config/' + object_id + '.yml','a') as yamlfile:
 			yaml.dump(arr, yamlfile)
 	return render_template("test.html")
+	
+def init():
+	global ip_address
+	ip_address = input("Enter the IP addres of the machine running the Camera server: " )
 
 #   Run server on 'localhost:8090'
 
 if __name__ == '__main__':
-	application.run(host = '127.0.0.1', port = '8090', debug = False)
+	init()
+	application.run(host = '0.0.0.0', port = '8090', debug = False)
